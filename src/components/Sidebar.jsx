@@ -33,30 +33,35 @@ const Sidebars = () => {
                   text="Dashboard"
                   role="Admin"
                   to={"/admin"}
+                  className={pathName == "/admin" ? "bg-[#5C8374]" : ""}
                 />
                 <SidebarItem
                   icons={<FaUserDoctor color="white" size={20} />}
                   text="Dokter"
                   role="Admin"
                   to={"/admin/doctors"}
+                  className={pathName == "/admin/doctors" ? "bg-[#5C8374]" : ""}
                 />
                 <SidebarItem
                   icons={<FaUserInjured color="white" size={20} />}
                   text="Pasien"
                   role="Admin"
                   to={"/admin/pasien"}
+                  className={pathName == "/admin/pasien" ? "bg-[#5C8374]" : ""}
                 />
                 <SidebarItem
                   icons={<FaHospital color="white" size={20} />}
                   text="Poli"
                   role="Admin"
                   to={"/admin/poli"}
+                  className={pathName == "/admin/poli" ? "bg-[#5C8374]" : ""}
                 />
                 <SidebarItem
                   icons={<FaPills color="white" size={20} />}
                   text="Obat"
                   role="Admin"
                   to={"/admin/obat"}
+                  className={pathName == "/admin/obat" ? "bg-[#5C8374]" : ""}
                 />
               </>
             )}
@@ -67,30 +72,43 @@ const Sidebars = () => {
                   text="Dashboard"
                   role="Dokter"
                   to={"/dokter"}
+                  className={pathName == "/dokter" ? "bg-[#5C8374]" : ""}
                 />
                 <SidebarItem
                   icons={<CiMedicalClipboard color="white" size={20} />}
                   text="Jadwal Periksa"
                   role="Dokter"
                   to={"/dokter/jadwal-periksa"}
+                  className={
+                    pathName == "/dokter/jadwal-periksa" ? "bg-[#5C8374]" : ""
+                  }
                 />
                 <SidebarItem
                   icons={<FaStethoscope color="white" size={20} />}
                   text="Memeriksa Pasien"
                   role="Dokter"
                   to={"/dokter/daftar-periksa"}
+                  className={
+                    pathName == "/dokter/daftar-periksa" ? "bg-[#5C8374]" : ""
+                  }
                 />
                 <SidebarItem
                   icons={<FaNotesMedical color="white" size={20} />}
                   text="Riwayat Pasien"
                   role="Dokter"
                   to={"/dokter/riwayat-pasien"}
+                  className={
+                    pathName == "/dokter/riwayat-pasien" ? "bg-[#5C8374]" : ""
+                  }
                 />
                 <SidebarItem
                   icons={<FaUser color="white" size={20} />}
                   text="Profil"
                   role="Dokter"
                   to={"/dokter/profile"}
+                  className={
+                    pathName == "/dokter/profile" ? "bg-[#5C8374]" : ""
+                  }
                 />
               </>
             )}

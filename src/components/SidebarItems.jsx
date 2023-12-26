@@ -1,9 +1,14 @@
 import { Link } from "react-router-dom";
 
-const SidebarItems = ({ icons, text, role, to }) => {
+const SidebarItems = ({ icons, text, role, to, className }) => {
   return (
     <Link to={to}>
-      <li className="flex flex-row items-center justify-between w-[18rem] p-4 hover:bg-[#5C8374] rounded-md cursor-pointer">
+      <li
+        className={
+          "flex flex-row items-center justify-between w-[18rem] p-4 my-1 hover:bg-[#5C8374] rounded-md cursor-pointer " +
+          className
+        }
+      >
         <div className="flex">
           {icons}
           <h2 className="text-white font-bold ml-2">{text}</h2>

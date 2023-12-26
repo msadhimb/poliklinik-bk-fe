@@ -147,12 +147,14 @@ const Home = () => {
             <p className="text-xl text-gray-700 mt-2">
               Testimoni dari pasien yang telah menggunakan layanan kami.
             </p>
-            <SwiperCoverflow />
+            <div className="my-[8rem]">
+              <SwiperCoverflow />
+            </div>
           </div>
         </section>
       </main>
 
-      <Footer container className="bg-[#092635]">
+      <Footer container className="bg-[#092635] rounded-none">
         <div className="container mx-auto">
           <div className="grid w-full justify-between sm:flex sm:justify-between md:flex md:grid-cols-1">
             <div>
