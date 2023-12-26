@@ -1,9 +1,17 @@
 import { Table } from "flowbite-react";
+import { useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useOutletContext } from "react-router-dom";
 
 const JadwalPeriksa = () => {
   const pathName = useLocation().pathname;
+  const [role] = useOutletContext();
+
+  useEffect(() => {
+    if (role !== "dokter") {
+      window.location.href = "/";
+    }
+  }, [role]);
   return (
     <div className="container min-h-[90vh] m-5 my-[3rem]">
       <div className="flex justify-between">

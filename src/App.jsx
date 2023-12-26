@@ -18,40 +18,47 @@ import "swiper/css";
 import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
 import LoginPortal from "./pages/Auth/LoginPortal";
+import { Provider } from "react-redux";
+import { store } from "./config";
 
 function App() {
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginPortal />} />
-          <Route path="/admin" element={<Sidebar />}>
-            <Route index element={<DashboardAdmin />} />
-            <Route path="doctors" element={<Dokter />} />
-            <Route path="pasien" element={<Pasien />} />
-            <Route path="poli" element={<Poli />} />
-            <Route path="obat" element={<Obat />} />
-          </Route>
-          <Route path="/dokter" element={<Sidebar />}>
-            <Route index element={<DashboardAdmin />} />
-            <Route path="jadwal-periksa" element={<JadwalPeriksa />} />
-            <Route
-              path="jadwal-periksa/kelola-jadwal"
-              element={<KelolaJadwalPeriksa />}
-            />
-            <Route
-              path="jadwal-periksa/kelola-jadwal/:id"
-              element={<KelolaJadwalPeriksa />}
-            />
-            <Route path="daftar-periksa" element={<DaftarPeriksa />} />
-            <Route path="daftar-periksa/periksa" element={<PeriksaPasien />} />
-
-            <Route path="riwayat-pasien" element={<RiwayatPasien />} />
-            <Route path="profile" element={<ProfileDokter />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/:id" element={<Home />} />
+            <Route path="/login" element={<LoginPortal />} />
+            <Route path="/admin" element={<Sidebar />}>
+              <Route path=":id" element={<DashboardAdmin />} />
+              <Route path="doctors/:id" element={<Dokter />} />
+              <Route path="pasien/:id" element={<Pasien />} />
+              <Route path="poli/:id" element={<Poli />} />
+              <Route path="obat/:id" element={<Obat />} />
+            </Route>
+            <Route path="/dokter" element={<Sidebar />}>
+              <Route path=":id" element={<DashboardAdmin />} />
+              <Route path="jadwal-periksa/:id" element={<JadwalPeriksa />} />
+              <Route
+                path="jadwal-periksa/kelola-jadwal/:idDokter"
+                element={<KelolaJadwalPeriksa />}
+              />
+              <Route
+                path="jadwal-periksa/kelola-jadwal/:id/:idDokter"
+                element={<KelolaJadwalPeriksa />}
+              />
+              <Route path="daftar-periksa/:id" element={<DaftarPeriksa />} />
+              <Route
+                path="daftar-periksa/periksa/:id"
+                element={<PeriksaPasien />}
+              />
+              <Route path="riwayat-pasien/:id" element={<RiwayatPasien />} />
+              <Route path="profile/:id" element={<ProfileDokter />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
     </>
   );
 }

@@ -1,10 +1,18 @@
+import { useEffect } from "react";
 import Input from "../../components/Input";
 import TextArea from "../../components/TextArea";
 import { Table } from "flowbite-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useOutletContext } from "react-router-dom";
 
 const Pasien = () => {
   const pathName = useLocation().pathname;
+  const [role] = useOutletContext();
+
+  useEffect(() => {
+    if (role !== "admin") {
+      window.location.href = "/";
+    }
+  }, [role]);
   return (
     <>
       <div className="container min-h-[90vh] m-5 my-[3rem]">

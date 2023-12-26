@@ -1,11 +1,18 @@
 import { Table } from "flowbite-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useOutletContext } from "react-router-dom";
 import Modals from "../../components/Modals";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const RiwayatPasien = () => {
   const pathName = useLocation().pathname;
   const [openModal, setOpenModal] = useState(false);
+  const [role] = useOutletContext();
+
+  useEffect(() => {
+    if (role !== "dokter") {
+      window.location.href = "/";
+    }
+  }, [role]);
   return (
     <div className="container min-h-[90vh] m-5 my-[3rem]">
       <div className="flex justify-between">

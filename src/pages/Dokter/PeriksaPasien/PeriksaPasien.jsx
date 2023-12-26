@@ -1,9 +1,17 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useOutletContext } from "react-router-dom";
 import Input from "../../../components/Input";
 import TextArea from "../../../components/TextArea";
+import { useEffect } from "react";
 
 const PeriksaPasien = () => {
   const pathName = useLocation().pathname;
+  const [role] = useOutletContext();
+
+  useEffect(() => {
+    if (role !== "dokter") {
+      window.location.href = "/";
+    }
+  }, [role]);
   return (
     <div className="container min-h-[90vh] m-5 my-[3rem]">
       <div className="flex justify-between">

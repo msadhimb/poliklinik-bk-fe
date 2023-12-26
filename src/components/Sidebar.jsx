@@ -11,11 +11,44 @@ import {
 import { FaUserDoctor } from "react-icons/fa6";
 import udinus from "../assets/logo/udinus.png";
 import NavbarDashboard from "./NavbarDashboard";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useParams } from "react-router-dom";
 import { CiMedicalClipboard } from "react-icons/ci";
+import { useEffect, useState } from "react";
+import { getAdmin } from "../config/Redux/Action/adminAction";
+import { useDispatch, useSelector } from "react-redux";
+import { getDokter } from "../config/Redux/Action/dokterAction";
 
 const Sidebars = () => {
   const pathName = useLocation().pathname;
+  const { id } = useParams();
+  const { admin } = useSelector((state) => state.adminReducer);
+  const { dokter } = useSelector((state) => state.dokterReducer);
+  const dispatch = useDispatch();
+  const token = localStorage.getItem("token");
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    dispatch(getAdmin(token));
+  }, [dispatch, token]);
+
+  useEffect(() => {
+    dispatch(getDokter(token));
+  }, [dispatch, token]);
+
+  useEffect(() => {
+    if (admin.role) {
+      setRole(admin.role);
+    } else if (dokter.role) {
+      setRole(dokter.role);
+    }
+  }, [admin, dokter]);
+
+  useEffect(() => {
+    if (!admin || !dokter) {
+      window.location.href = "/login";
+    }
+  }, [admin, dokter]);
+
   return (
     <>
       <div className="flex h-screen">
@@ -26,59 +59,67 @@ const Sidebars = () => {
           </div>
           <hr className="border-[#5C8374]" />
           <ul className="flex flex-col p-2">
-            {pathName.includes("admin") && (
+            {role === "admin" && (
               <>
                 <SidebarItem
                   icons={<MdSpaceDashboard color="white" size={20} />}
                   text="Dashboard"
                   role="Admin"
-                  to={"/admin"}
-                  className={pathName == "/admin" ? "bg-[#5C8374]" : ""}
+                  to={"/admin/" + id}
+                  className={pathName == "/admin/" + id ? "bg-[#5C8374]" : ""}
                 />
                 <SidebarItem
                   icons={<FaUserDoctor color="white" size={20} />}
                   text="Dokter"
                   role="Admin"
-                  to={"/admin/doctors"}
-                  className={pathName == "/admin/doctors" ? "bg-[#5C8374]" : ""}
+                  to={"/admin/doctors/" + id}
+                  className={
+                    pathName == "/admin/doctors/" + id ? "bg-[#5C8374]" : ""
+                  }
                 />
                 <SidebarItem
                   icons={<FaUserInjured color="white" size={20} />}
                   text="Pasien"
                   role="Admin"
-                  to={"/admin/pasien"}
-                  className={pathName == "/admin/pasien" ? "bg-[#5C8374]" : ""}
+                  to={"/admin/pasien/" + id}
+                  className={
+                    pathName == "/admin/pasien/" + id ? "bg-[#5C8374]" : ""
+                  }
                 />
                 <SidebarItem
                   icons={<FaHospital color="white" size={20} />}
                   text="Poli"
                   role="Admin"
-                  to={"/admin/poli"}
-                  className={pathName == "/admin/poli" ? "bg-[#5C8374]" : ""}
+                  to={"/admin/poli/" + id}
+                  className={
+                    pathName == "/admin/poli/" + id ? "bg-[#5C8374]" : ""
+                  }
                 />
                 <SidebarItem
                   icons={<FaPills color="white" size={20} />}
                   text="Obat"
                   role="Admin"
-                  to={"/admin/obat"}
-                  className={pathName == "/admin/obat" ? "bg-[#5C8374]" : ""}
+                  to={"/admin/obat/" + id}
+                  className={
+                    pathName == "/admin/obat/" + id ? "bg-[#5C8374]" : ""
+                  }
                 />
               </>
             )}
-            {pathName.includes("dokter") && (
+            {role === "dokter" && (
               <>
                 <SidebarItem
                   icons={<MdSpaceDashboard color="white" size={20} />}
                   text="Dashboard"
                   role="Dokter"
-                  to={"/dokter"}
+                  to={"/dokter/" + id}
                   className={pathName == "/dokter" ? "bg-[#5C8374]" : ""}
                 />
                 <SidebarItem
                   icons={<CiMedicalClipboard color="white" size={20} />}
                   text="Jadwal Periksa"
                   role="Dokter"
-                  to={"/dokter/jadwal-periksa"}
+                  to={"/dokter/jadwal-periksa/" + id}
                   className={
                     pathName == "/dokter/jadwal-periksa" ? "bg-[#5C8374]" : ""
                   }
@@ -87,7 +128,7 @@ const Sidebars = () => {
                   icons={<FaStethoscope color="white" size={20} />}
                   text="Memeriksa Pasien"
                   role="Dokter"
-                  to={"/dokter/daftar-periksa"}
+                  to={"/dokter/daftar-periksa/" + id}
                   className={
                     pathName == "/dokter/daftar-periksa" ? "bg-[#5C8374]" : ""
                   }
@@ -96,7 +137,7 @@ const Sidebars = () => {
                   icons={<FaNotesMedical color="white" size={20} />}
                   text="Riwayat Pasien"
                   role="Dokter"
-                  to={"/dokter/riwayat-pasien"}
+                  to={"/dokter/riwayat-pasien/" + id}
                   className={
                     pathName == "/dokter/riwayat-pasien" ? "bg-[#5C8374]" : ""
                   }
@@ -105,7 +146,7 @@ const Sidebars = () => {
                   icons={<FaUser color="white" size={20} />}
                   text="Profil"
                   role="Dokter"
-                  to={"/dokter/profile"}
+                  to={"/dokter/profile/" + id}
                   className={
                     pathName == "/dokter/profile" ? "bg-[#5C8374]" : ""
                   }
@@ -117,7 +158,7 @@ const Sidebars = () => {
         <div className="flex flex-col w-full overflow-auto">
           <NavbarDashboard />
           <main className="bg-[#F0F4F8] overflow-y-auto max-h-[100vh]">
-            <Outlet />
+            <Outlet context={[role]} />
           </main>
         </div>
       </div>

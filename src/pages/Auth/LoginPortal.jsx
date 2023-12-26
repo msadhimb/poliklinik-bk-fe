@@ -4,18 +4,54 @@ import Modals from "../../components/Modals";
 import { useState } from "react";
 import { Checkbox, Label, TextInput } from "flowbite-react";
 import { HiLockClosed, HiMail } from "react-icons/hi";
+import { useDispatch } from "react-redux";
+import { getAdmin, loginAdmin } from "../../config/Redux/Action/adminAction";
+import { useNavigate } from "react-router-dom";
+import { getDokter, loginDokter } from "../../config/Redux/Action/dokterAction";
 
 const LoginPortal = () => {
+  const dispatch = useDispatch();
+  const nav = useNavigate();
   const [pasien, setPasien] = useState(false);
   const [dokter, setDokter] = useState(false);
   const [admin, setAdmin] = useState(false);
   const [register, setRegister] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
+  const [adminForm, setAdminForm] = useState({
+    username: "",
+    password: "",
+  });
+  const [dokterForm, setDokterForm] = useState({
+    username: "",
+    password: "",
+  });
+
+  const handleLoginAdmin = (e) => {
+    e.preventDefault();
+    dispatch(loginAdmin(adminForm));
+    setIsLogin(true);
+    const token = localStorage.getItem("token");
+    if (token) {
+      dispatch(getAdmin(token, isLogin, nav));
+    }
+  };
+
+  const handleLoginDokter = (e) => {
+    e.preventDefault();
+    dispatch(loginDokter(dokterForm));
+    setIsLogin(true);
+    const token = localStorage.getItem("token");
+    if (token) {
+      dispatch(getDokter(token, isLogin, nav));
+    }
+  };
+
   return (
     <>
       <div className="min-h-screen relative">
         <div className="bg-[#1B4242] absolute top-0 h-[50%] w-full z-0" />
         <div className="flex items-center h-screen justify-center flex-col container mx-auto relative z-20">
-          <h1 className="text-4xl font-bold text-white mb-[10rem]">
+          <h1 className="text-4xl font-bold text-white mb-[5rem]">
             {" "}
             Login Portal{" "}
           </h1>
@@ -27,7 +63,7 @@ const LoginPortal = () => {
               </div>
               <h1 className=" text-2xl font-bold mt-2">Login Sebagai Pasien</h1>
               <p className=" text-lg">
-                Apabila Anda adalah admin, silahkan login disini.
+                Apabila Anda adalah pasien, silahkan login disini.
               </p>
               <button
                 className="bg-white text-[#1B4242] rounded-full py-2 mt-3 flex items-center hover:underline"
@@ -42,7 +78,7 @@ const LoginPortal = () => {
               </div>
               <h1 className=" text-2xl font-bold mt-2">Login Sebagai Dokter</h1>
               <p className=" text-lg">
-                Apabila Anda adalah admin, silahkan login disini.
+                Apabila Anda adalah dokter, silahkan login disini.
               </p>
               <button
                 className="bg-white text-[#1B4242] rounded-full py-2 mt-3 flex items-center hover:underline"
@@ -198,13 +234,20 @@ const LoginPortal = () => {
           buttonClose={false}
           body={
             <>
-              <form className="flex flex-col">
+              <form className="flex flex-col" onSubmit={handleLoginDokter}>
                 <div className="w-full">
                   <TextInput
                     id="nama"
                     type="text"
                     icon={HiMail}
                     placeholder="Username"
+                    name="username"
+                    onChange={(e) => {
+                      setDokterForm({
+                        ...dokterForm,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
                     required
                   />
                 </div>
@@ -214,6 +257,13 @@ const LoginPortal = () => {
                     type="password"
                     icon={HiLockClosed}
                     placeholder="Password"
+                    name="password"
+                    onChange={(e) => {
+                      setDokterForm({
+                        ...dokterForm,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
                     required
                   />
                 </div>
@@ -224,7 +274,10 @@ const LoginPortal = () => {
                       Remember Me
                     </Label>
                   </div>
-                  <button className="bg-[#1B4242] text-white p-2 px-4 rounded-lg w-fit">
+                  <button
+                    className="bg-[#1B4242] text-white p-2 px-4 rounded-lg w-fit"
+                    type="submit"
+                  >
                     Login
                   </button>
                 </div>
@@ -240,13 +293,20 @@ const LoginPortal = () => {
           buttonClose={false}
           body={
             <>
-              <form className="flex flex-col">
+              <form className="flex flex-col" onSubmit={handleLoginAdmin}>
                 <div className="w-full">
                   <TextInput
                     id="nama"
                     type="text"
                     icon={HiMail}
                     placeholder="Username"
+                    name="username"
+                    onChange={(e) => {
+                      setAdminForm({
+                        ...adminForm,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
                     required
                   />
                 </div>
@@ -256,6 +316,13 @@ const LoginPortal = () => {
                     type="password"
                     icon={HiLockClosed}
                     placeholder="Password"
+                    name="password"
+                    onChange={(e) => {
+                      setAdminForm({
+                        ...adminForm,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
                     required
                   />
                 </div>
@@ -266,7 +333,10 @@ const LoginPortal = () => {
                       Remember Me
                     </Label>
                   </div>
-                  <button className="bg-[#1B4242] text-white p-2 px-4 rounded-lg w-fit">
+                  <button
+                    className="bg-[#1B4242] text-white p-2 px-4 rounded-lg w-fit"
+                    type="submit"
+                  >
                     Login
                   </button>
                 </div>

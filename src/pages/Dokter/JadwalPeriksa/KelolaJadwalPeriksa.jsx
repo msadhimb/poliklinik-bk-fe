@@ -1,9 +1,17 @@
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useOutletContext, useParams } from "react-router-dom";
 import Input from "../../../components/Input";
+import { useEffect } from "react";
 
 const KelolaJadwalPeriksa = () => {
   const pathName = useLocation().pathname;
   const { id } = useParams();
+  const [role] = useOutletContext();
+
+  useEffect(() => {
+    if (role !== "dokter") {
+      window.location.href = "/";
+    }
+  }, [role]);
   return (
     <div className="container min-h-[90vh] m-5 my-[3rem]">
       <div className="flex justify-between">

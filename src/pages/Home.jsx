@@ -1,5 +1,5 @@
 import { Footer, Navbar } from "flowbite-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import udinus from "../assets/logo/udinus.png";
 import {
   BsDribbble,
@@ -11,8 +11,50 @@ import {
 } from "react-icons/bs";
 import { MdOutlineArrowRightAlt } from "react-icons/md";
 import SwiperCoverflow from "../components/SwiperCoverflow";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { getAdmin } from "../config/Redux/Action/adminAction";
+import { getDokter } from "../config/Redux/Action/dokterAction";
 
 const Home = () => {
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const nav = useNavigate();
+  const { admin, isLogin } = useSelector((state) => state.adminReducer);
+  const { dokter, isLoginDokter } = useSelector((state) => state.dokterReducer);
+  const token = localStorage.getItem("token");
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    if (!token || id === undefined) {
+      dispatch(getAdmin(token));
+      if (isLogin) {
+        nav("/" + admin.id);
+      }
+    } else {
+      dispatch(getAdmin(token));
+    }
+  }, [dispatch, id, isLogin, nav, token, admin.id]);
+
+  useEffect(() => {
+    if (!token || id === undefined) {
+      dispatch(getDokter(token));
+      if (isLoginDokter) {
+        nav("/" + dokter.id);
+      }
+    } else {
+      dispatch(getDokter(token));
+    }
+  }, [dispatch, id, isLoginDokter, nav, token, dokter.id]);
+
+  useEffect(() => {
+    if (admin.role) {
+      setRole(admin.role);
+    } else if (dokter.role) {
+      setRole(dokter.role);
+    }
+  }, [admin, dokter]);
+
   return (
     <>
       <Navbar rounded className="shadow-md py-5 bg-[#092635]">
@@ -37,16 +79,42 @@ const Home = () => {
           </Navbar.Link>
           <Navbar.Link
             as={Link}
-            href="#"
+            href="/dashboard"
             className="flex items-center h-full text-white"
           >
             About
           </Navbar.Link>
-          <Link to={"/login"}>
-            <button className="bg-[#9EC8B9] text-black p-2 px-3 rounded-lg">
-              Login
-            </button>
-          </Link>
+          {id && token ? (
+            <>
+              <Link
+                to={role == "admin" ? `/admin/${id}` : `/dokter/${id}`}
+                className="flex items-center h-100 text-white"
+              >
+                Dashboard
+              </Link>
+              <div className="flex items-center">
+                <div className="flex flex-col justify-center items-end mr-2">
+                  <h3 className=" font-bold text-white">
+                    {admin.username ? admin.username : dokter.username}
+                  </h3>
+                  <span className=" text-[12px] text-white">
+                    {admin.role ? admin.role : dokter.role}
+                  </span>
+                </div>
+                <img
+                  src="https://i.pravatar.cc/150?img=3"
+                  alt="user"
+                  className="w-10 h-10 rounded-full"
+                />
+              </div>
+            </>
+          ) : (
+            <Link to={"/login"}>
+              <button className="bg-[#9EC8B9] text-black p-2 px-3 rounded-lg">
+                Login
+              </button>
+            </Link>
+          )}
         </Navbar.Collapse>
       </Navbar>
 

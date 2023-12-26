@@ -1,10 +1,18 @@
 import TextArea from "../../components/TextArea";
-import { useLocation } from "react-router-dom";
+import { useLocation, useOutletContext } from "react-router-dom";
 import { Table } from "flowbite-react";
 import Input from "../../components/Input";
+import { useEffect } from "react";
 
 const Poli = () => {
   const pathName = useLocation().pathname;
+  const [role] = useOutletContext();
+
+  useEffect(() => {
+    if (role !== "admin") {
+      window.location.href = "/";
+    }
+  }, [role]);
   return (
     <>
       <div className="container min-h-[90vh] m-5 my-[3rem]">
