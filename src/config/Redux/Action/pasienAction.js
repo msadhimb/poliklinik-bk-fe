@@ -65,6 +65,7 @@ export const logoutPasien = (token, nav) => {
       dispatch({ type: "SET_IS_LOGIN", payload: false });
       dispatch({ type: "SET_PASIEN", payload: {} });
       nav("/");
+      localStorage.removeItem("role");
     } catch (err) {
       console.log(err);
     }

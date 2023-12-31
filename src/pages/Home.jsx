@@ -279,7 +279,7 @@ const Home = () => {
                   Daftar Poli
                   <MdOutlineArrowRightAlt color="white" className="ml-2" />
                 </button>
-              ) : role !== "" ? (
+              ) : role === "admin" || role === "dokter" ? (
                 <Link
                   to={`/${role}/${role === "admin" ? admin.id : dokter.id}`}
                   className="bg-green-900 p-2 px-3 mt-4 text-white flex w-fit items-center rounded-md"

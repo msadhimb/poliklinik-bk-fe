@@ -227,7 +227,7 @@ const LoginPortal = () => {
                     id="alamat"
                     type="text"
                     icon={FaLocationDot}
-                    placeholder="Full Name"
+                    placeholder="Alamat"
                     name="alamat"
                     onChange={(e) => {
                       setPasienRegister({
