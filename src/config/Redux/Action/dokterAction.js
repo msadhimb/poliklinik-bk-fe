@@ -7,9 +7,9 @@ export const getDokter = (token, isLogin = false, nav) => {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}api/auth/dokter/me`
       );
-      console.log(res.data);
       dispatch({ type: "SET_DOKTER", payload: res.data });
       dispatch({ type: "SET_IS_LOGIN", payload: true });
+      localStorage.setItem("role", res.data.role);
       if (isLogin) {
         nav("/" + res.data.id);
       }
@@ -19,7 +19,7 @@ export const getDokter = (token, isLogin = false, nav) => {
   };
 };
 
-export const loginDokter = (data) => {
+export const loginDokter = (data, nav) => {
   return async (dispatch) => {
     dispatch({ type: "SET_IS_LOADING", payload: true });
     try {
@@ -28,6 +28,7 @@ export const loginDokter = (data) => {
         data
       );
       localStorage.setItem("token", res.data.access_token);
+      dispatch(getDokter(res.data.access_token, true, nav));
     } catch (err) {
       console.log(err);
     }

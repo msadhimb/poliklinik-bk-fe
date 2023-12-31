@@ -41,16 +41,16 @@ function App() {
               <Route path=":id" element={<DashboardAdmin />} />
               <Route path="jadwal-periksa/:id" element={<JadwalPeriksa />} />
               <Route
-                path="jadwal-periksa/kelola-jadwal/:idDokter"
+                path="jadwal-periksa/kelola-jadwal/:id"
                 element={<KelolaJadwalPeriksa />}
               />
               <Route
-                path="jadwal-periksa/kelola-jadwal/:id/:idDokter"
+                path="jadwal-periksa/kelola-jadwal/:idJadwal/:id"
                 element={<KelolaJadwalPeriksa />}
               />
               <Route path="daftar-periksa/:id" element={<DaftarPeriksa />} />
               <Route
-                path="daftar-periksa/periksa/:id"
+                path="daftar-periksa/periksa/:idPasien/:id"
                 element={<PeriksaPasien />}
               />
               <Route path="riwayat-pasien/:id" element={<RiwayatPasien />} />

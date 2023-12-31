@@ -1,13 +1,18 @@
-import { FaUserAlt } from "react-icons/fa";
+import { FaAddressCard, FaRegAddressCard, FaUserAlt } from "react-icons/fa";
+import { FaLocationDot } from "react-icons/fa6";
 import { MdOutlineArrowRightAlt } from "react-icons/md";
 import Modals from "../../components/Modals";
 import { useState } from "react";
 import { Checkbox, Label, TextInput } from "flowbite-react";
 import { HiLockClosed, HiMail } from "react-icons/hi";
 import { useDispatch } from "react-redux";
-import { getAdmin, loginAdmin } from "../../config/Redux/Action/adminAction";
+import { loginAdmin } from "../../config/Redux/Action/adminAction";
 import { useNavigate } from "react-router-dom";
-import { getDokter, loginDokter } from "../../config/Redux/Action/dokterAction";
+import { loginDokter } from "../../config/Redux/Action/dokterAction";
+import {
+  loginPasien,
+  registerPasien,
+} from "../../config/Redux/Action/pasienAction";
 
 const LoginPortal = () => {
   const dispatch = useDispatch();
@@ -16,7 +21,6 @@ const LoginPortal = () => {
   const [dokter, setDokter] = useState(false);
   const [admin, setAdmin] = useState(false);
   const [register, setRegister] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
   const [adminForm, setAdminForm] = useState({
     username: "",
     password: "",
@@ -25,25 +29,50 @@ const LoginPortal = () => {
     username: "",
     password: "",
   });
+  const [pasienRegister, setPasienRegister] = useState({
+    nama: "",
+    no_ktp: "",
+    no_hp: "",
+    username: "",
+    password: "",
+    alamat: "",
+  });
+  const [pasienForm, setPasienForm] = useState({
+    username: "",
+    password: "",
+  });
 
   const handleLoginAdmin = (e) => {
     e.preventDefault();
-    dispatch(loginAdmin(adminForm));
-    setIsLogin(true);
-    const token = localStorage.getItem("token");
-    if (token) {
-      dispatch(getAdmin(token, isLogin, nav));
-    }
+    dispatch(loginAdmin(adminForm, nav));
   };
 
   const handleLoginDokter = (e) => {
     e.preventDefault();
-    dispatch(loginDokter(dokterForm));
-    setIsLogin(true);
-    const token = localStorage.getItem("token");
-    if (token) {
-      dispatch(getDokter(token, isLogin, nav));
-    }
+    dispatch(loginDokter(dokterForm, nav));
+  };
+
+  const handleRegisterPasien = (e) => {
+    e.preventDefault();
+    dispatch(registerPasien(pasienRegister, setRegister));
+    setPasienRegister({
+      nama: "",
+      no_ktp: "",
+      no_hp: "",
+      username: "",
+      password: "",
+      alamat: "",
+    });
+  };
+
+  const handleLoginPasien = (e) => {
+    e.preventDefault();
+    dispatch(loginPasien(pasienForm, nav));
+    setPasienForm({
+      username: "",
+      password: "",
+    });
+    setRegister(false);
   };
 
   return (
@@ -112,22 +141,36 @@ const LoginPortal = () => {
           buttonClose={false}
           body={
             <>
-              <form className="flex flex-col">
+              <form className="flex flex-col" onSubmit={handleLoginPasien}>
                 <div className="w-full">
                   <TextInput
-                    id="nama"
+                    id="username"
                     type="text"
                     icon={HiMail}
                     placeholder="Username"
+                    name="username"
+                    onChange={(e) => {
+                      setPasienForm({
+                        ...pasienForm,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
                     required
                   />
                 </div>
                 <div className="w-full my-3">
                   <TextInput
-                    id="nama"
+                    id="password"
                     type="password"
                     icon={HiLockClosed}
                     placeholder="Password"
+                    name="password"
+                    onChange={(e) => {
+                      setPasienForm({
+                        ...pasienForm,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
                     required
                   />
                 </div>
@@ -143,7 +186,10 @@ const LoginPortal = () => {
                       Remember Me
                     </Label>
                   </div>
-                  <button className="bg-[#1B4242] text-white p-2 px-4 rounded-lg w-fit">
+                  <button
+                    className="bg-[#1B4242] text-white p-2 px-4 rounded-lg w-fit"
+                    type="submit"
+                  >
                     Login
                   </button>
                 </div>
@@ -159,13 +205,68 @@ const LoginPortal = () => {
           buttonClose={false}
           body={
             <>
-              <form className="flex flex-col">
+              <form className="flex flex-col" onSubmit={handleRegisterPasien}>
                 <div className="w-full">
                   <TextInput
                     id="nama"
                     type="text"
                     icon={HiMail}
                     placeholder="Full Name"
+                    name="nama"
+                    onChange={(e) => {
+                      setPasienRegister({
+                        ...pasienRegister,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
+                    required
+                  />
+                </div>
+                <div className="w-full mt-3">
+                  <TextInput
+                    id="alamat"
+                    type="text"
+                    icon={FaLocationDot}
+                    placeholder="Full Name"
+                    name="alamat"
+                    onChange={(e) => {
+                      setPasienRegister({
+                        ...pasienRegister,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
+                    required
+                  />
+                </div>
+                <div className="w-full mt-3">
+                  <TextInput
+                    id="no_ktp"
+                    type="number"
+                    icon={FaAddressCard}
+                    placeholder="No. KTP"
+                    name="no_ktp"
+                    onChange={(e) => {
+                      setPasienRegister({
+                        ...pasienRegister,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
+                    required
+                  />
+                </div>
+                <div className="w-full mt-3">
+                  <TextInput
+                    id="no_hp"
+                    type="number"
+                    icon={FaRegAddressCard}
+                    placeholder="No. HP"
+                    name="no_hp"
+                    onChange={(e) => {
+                      setPasienRegister({
+                        ...pasienRegister,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
                     required
                   />
                 </div>
@@ -175,24 +276,29 @@ const LoginPortal = () => {
                     type="text"
                     icon={HiMail}
                     placeholder="Username"
-                    required
-                  />
-                </div>
-                <div className="w-full mt-3">
-                  <TextInput
-                    id="no_ktp"
-                    type="number"
-                    icon={HiLockClosed}
-                    placeholder="No. KTP"
+                    name="username"
+                    onChange={(e) => {
+                      setPasienRegister({
+                        ...pasienRegister,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
                     required
                   />
                 </div>
                 <div className="w-full my-3">
                   <TextInput
-                    id="no_hp"
-                    type="number"
+                    id="password"
+                    type="password"
                     icon={HiLockClosed}
-                    placeholder="No. HP"
+                    placeholder="Password"
+                    name="password"
+                    onChange={(e) => {
+                      setPasienRegister({
+                        ...pasienRegister,
+                        [e.target.name]: e.target.value,
+                      });
+                    }}
                     required
                   />
                 </div>
@@ -210,14 +316,18 @@ const LoginPortal = () => {
                       </a>
                     </Label>
                   </div>
-                  <button className="bg-[#1B4242] text-white p-2 px-4 rounded-lg w-fit">
-                    Login
+                  <button
+                    className="bg-[#1B4242] text-white p-2 px-4 rounded-lg w-fit"
+                    type="submit"
+                  >
+                    Register
                   </button>
                 </div>
                 <div className="flex justify-end text-sm text-[#1B4242] hover:underline my-1">
                   <button
                     onClick={() => setRegister(false)}
                     className="text-[#1B4242]"
+                    type="button"
                   >
                     Sudah memiliki akun?
                   </button>

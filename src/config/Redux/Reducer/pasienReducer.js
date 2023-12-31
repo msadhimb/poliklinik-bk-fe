@@ -1,29 +1,29 @@
 const initialState = {
-  admin: {},
+  pasien: {},
   isLogin: false,
-  errorMessageAdmin: "",
+  errorMessagePasien: "",
 };
 
-const adminReducer = (state = initialState, action) => {
+const pasienReducer = (state = initialState, action) => {
   switch (action.type) {
-    case "SET_ADMIN":
+    case "SET_PASIEN":
       return {
         ...state,
-        admin: action.payload,
+        pasien: action.payload,
       };
     case "SET_IS_LOGIN":
       return {
         ...state,
         isLogin: action.payload,
       };
-    case "SET_ERROR_MESSAGE_ADMIN":
+    case "SET_ERROR_MESSAGE_PASIEN":
       return {
         ...state,
-        errorMessageAdmin: action.payload,
+        errorMessagePasien: action.payload,
       };
     default:
       return state;
   }
 };
 
-export default adminReducer;
+export default pasienReducer;

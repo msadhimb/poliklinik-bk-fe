@@ -11,9 +11,9 @@ import {
 import { FaUserDoctor } from "react-icons/fa6";
 import udinus from "../assets/logo/udinus.png";
 import NavbarDashboard from "./NavbarDashboard";
-import { Outlet, useLocation, useParams } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { CiMedicalClipboard } from "react-icons/ci";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getAdmin } from "../config/Redux/Action/adminAction";
 import { useDispatch, useSelector } from "react-redux";
 import { getDokter } from "../config/Redux/Action/dokterAction";
@@ -21,27 +21,38 @@ import { getDokter } from "../config/Redux/Action/dokterAction";
 const Sidebars = () => {
   const pathName = useLocation().pathname;
   const { id } = useParams();
-  const { admin } = useSelector((state) => state.adminReducer);
-  const { dokter } = useSelector((state) => state.dokterReducer);
+  const { admin, isLogin } = useSelector((state) => state.adminReducer);
+  const { dokter, isLoginDokter } = useSelector((state) => state.dokterReducer);
+  const nav = useNavigate();
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
-  const [role, setRole] = useState("");
+  const role = localStorage.getItem("role");
 
   useEffect(() => {
-    dispatch(getAdmin(token));
-  }, [dispatch, token]);
-
-  useEffect(() => {
-    dispatch(getDokter(token));
-  }, [dispatch, token]);
-
-  useEffect(() => {
-    if (admin.role) {
-      setRole(admin.role);
-    } else if (dokter.role) {
-      setRole(dokter.role);
+    if (role === "admin") {
+      if (!token || id === undefined) {
+        dispatch(getAdmin(token));
+        if (isLogin) {
+          nav("/" + admin.id);
+        }
+      } else {
+        dispatch(getAdmin(token));
+      }
     }
-  }, [admin, dokter]);
+  }, [dispatch, id, isLogin, nav, token, admin.id, role]);
+
+  useEffect(() => {
+    if (role === "dokter") {
+      if (!token || id === undefined) {
+        dispatch(getDokter(token));
+        if (isLoginDokter) {
+          nav("/" + dokter.id);
+        }
+      } else {
+        dispatch(getDokter(token));
+      }
+    }
+  }, [dispatch, id, isLoginDokter, nav, token, dokter.id, role]);
 
   useEffect(() => {
     if (!admin || !dokter) {

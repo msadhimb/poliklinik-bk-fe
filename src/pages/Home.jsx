@@ -1,4 +1,4 @@
-import { Footer, Navbar } from "flowbite-react";
+import { Dropdown, Footer, Navbar } from "flowbite-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import udinus from "../assets/logo/udinus.png";
 import {
@@ -13,8 +13,19 @@ import { MdOutlineArrowRightAlt } from "react-icons/md";
 import SwiperCoverflow from "../components/SwiperCoverflow";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { getAdmin } from "../config/Redux/Action/adminAction";
-import { getDokter } from "../config/Redux/Action/dokterAction";
+import { getAdmin, logoutAdmin } from "../config/Redux/Action/adminAction";
+import { getDokter, logoutDokter } from "../config/Redux/Action/dokterAction";
+import {
+  addDaftarPoli,
+  getJadwalPeriksa,
+  getPasien,
+  getPoli,
+  logoutPasien,
+} from "../config/Redux/Action";
+import Modals from "../components/Modals";
+import Input from "../components/Input";
+import ReactSelect from "../components/ReactSelect";
+import TextArea from "../components/TextArea";
 
 const Home = () => {
   const { id } = useParams();
@@ -22,38 +33,139 @@ const Home = () => {
   const nav = useNavigate();
   const { admin, isLogin } = useSelector((state) => state.adminReducer);
   const { dokter, isLoginDokter } = useSelector((state) => state.dokterReducer);
+  const { pasien, isLoginPasien } = useSelector((state) => state.pasienReducer);
+  const { poli } = useSelector((state) => state.poliReducer);
+  const { jadwalPeriksa } = useSelector((state) => state.jadwalPeriksaReducer);
   const token = localStorage.getItem("token");
-  const [role, setRole] = useState("");
+  const role = localStorage.getItem("role");
+  const [daftarPoli, setDaftarPoli] = useState(false);
+  const [poliOption, setPoliOption] = useState([]);
+  const [selectedPoli, setSelectedPoli] = useState();
+  const [jadwal, setJadwal] = useState([]);
+  const [daftarPoliForm, setDaftarPoliForm] = useState({
+    id_pasien: pasien.id,
+    id_jadwal: "",
+    keluhan: "",
+  });
+
+  const handleLogoutAdmin = () => {
+    dispatch(logoutAdmin(token, nav));
+  };
+
+  const handleLogoutDokter = () => {
+    dispatch(logoutDokter(token, nav));
+  };
+
+  const handleLogoutPasien = () => {
+    dispatch(logoutPasien(token, nav));
+  };
+
+  const handleOpenDaftarPoli = () => {
+    setDaftarPoli(true);
+    dispatch(getPoli());
+  };
+
+  const handleCloseDaftarPoli = () => {
+    setDaftarPoli(false);
+  };
+
+  const handleDaftarPoli = (e) => {
+    e.preventDefault();
+    dispatch(addDaftarPoli(daftarPoliForm));
+    setDaftarPoli(false);
+  };
+
+  const dateFormat = (date) => {
+    return date?.split(" ")[0];
+  };
+
+  const timeFormat = (time) => {
+    const date = new Date(`1970-01-01T${time}`);
+
+    if (isNaN(date)) {
+      return "Invalid time";
+    }
+
+    return date.toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   useEffect(() => {
-    if (!token || id === undefined) {
-      dispatch(getAdmin(token));
-      if (isLogin) {
-        nav("/" + admin.id);
+    if (role === "admin") {
+      if (!token || id === undefined) {
+        dispatch(getAdmin(token));
+        if (isLogin && admin.id !== undefined) {
+          nav("/" + admin.id);
+        }
+      } else {
+        dispatch(getAdmin(token));
       }
-    } else {
-      dispatch(getAdmin(token));
     }
-  }, [dispatch, id, isLogin, nav, token, admin.id]);
+  }, [dispatch, id, isLogin, nav, token, admin.id, role]);
 
   useEffect(() => {
-    if (!token || id === undefined) {
-      dispatch(getDokter(token));
-      if (isLoginDokter) {
-        nav("/" + dokter.id);
+    if (role === "dokter") {
+      if (!token || id === undefined) {
+        dispatch(getDokter(token));
+        if (isLoginDokter && dokter.id !== undefined) {
+          nav("/" + dokter.id);
+        }
+      } else {
+        dispatch(getDokter(token));
       }
-    } else {
-      dispatch(getDokter(token));
     }
-  }, [dispatch, id, isLoginDokter, nav, token, dokter.id]);
+  }, [dispatch, id, isLoginDokter, nav, token, dokter.id, role]);
 
   useEffect(() => {
-    if (admin.role) {
-      setRole(admin.role);
-    } else if (dokter.role) {
-      setRole(dokter.role);
+    if (role === "pasien") {
+      if (!token || id === undefined) {
+        dispatch(getPasien(token));
+        if (isLoginPasien && pasien.id !== undefined) {
+          nav("/" + pasien.id);
+        }
+      } else {
+        dispatch(getPasien(token));
+      }
     }
-  }, [admin, dokter]);
+  }, [dispatch, id, isLoginPasien, nav, token, pasien.id, role]);
+
+  useEffect(() => {
+    if (poli) {
+      const data = poli.map((item) => {
+        return {
+          value: item.id,
+          label: item.nama_poli,
+        };
+      });
+      setPoliOption(data);
+    }
+  }, [poli]);
+
+  useEffect(() => {
+    if (selectedPoli) {
+      dispatch(getJadwalPeriksa());
+    }
+  }, [dispatch, selectedPoli]);
+
+  useEffect(() => {
+    if (jadwalPeriksa) {
+      const data = jadwalPeriksa.map((item) => {
+        if (item.dokter.poli.nama_poli === selectedPoli) {
+          return {
+            value: item.id,
+            label: `Dr. ${item.dokter.nama}, ${item.hari}, ${dateFormat(
+              item.tanggal
+            )}, jam ${timeFormat(item.jam_mulai)} sampai ${timeFormat(
+              item.jam_selesai
+            )}`,
+          };
+        }
+      });
+      setJadwal(data);
+    }
+  }, [jadwalPeriksa, selectedPoli]);
 
   return (
     <>
@@ -86,27 +198,56 @@ const Home = () => {
           </Navbar.Link>
           {id && token ? (
             <>
-              <Link
-                to={role == "admin" ? `/admin/${id}` : `/dokter/${id}`}
-                className="flex items-center h-100 text-white"
+              {role !== "pasien" && (
+                <Link
+                  to={role == "admin" ? `/admin/${id}` : `/dokter/${id}`}
+                  className="flex items-center h-100 text-white"
+                >
+                  Dashboard
+                </Link>
+              )}
+              <Dropdown
+                renderTrigger={() => (
+                  <div className="flex items-center">
+                    <div className="flex flex-col justify-center items-end mr-2">
+                      <h3 className=" font-bold text-white">
+                        {admin.username
+                          ? admin.username
+                          : dokter.username
+                          ? dokter.username
+                          : pasien.username}
+                      </h3>
+                      <span className=" text-[12px] text-white">
+                        {admin.role
+                          ? admin.role
+                          : dokter.role
+                          ? dokter.role
+                          : pasien.role}
+                      </span>
+                    </div>
+                    <img
+                      src="https://i.pravatar.cc/150?img=3"
+                      alt="user"
+                      className="w-10 h-10 rounded-full"
+                    />
+                  </div>
+                )}
+                dismissOnClick={false}
+                className="bg-red-500"
               >
-                Dashboard
-              </Link>
-              <div className="flex items-center">
-                <div className="flex flex-col justify-center items-end mr-2">
-                  <h3 className=" font-bold text-white">
-                    {admin.username ? admin.username : dokter.username}
-                  </h3>
-                  <span className=" text-[12px] text-white">
-                    {admin.role ? admin.role : dokter.role}
-                  </span>
-                </div>
-                <img
-                  src="https://i.pravatar.cc/150?img=3"
-                  alt="user"
-                  className="w-10 h-10 rounded-full"
-                />
-              </div>
+                <Dropdown.Item
+                  className="text-white hover:text-black"
+                  onClick={
+                    role === "admin"
+                      ? () => handleLogoutAdmin()
+                      : role === "dokter"
+                      ? () => handleLogoutDokter()
+                      : () => handleLogoutPasien()
+                  }
+                >
+                  Logout
+                </Dropdown.Item>
+              </Dropdown>
             </>
           ) : (
             <Link to={"/login"}>
@@ -130,10 +271,31 @@ const Home = () => {
             </p>
 
             <p className="mt-4">
-              <Link className="bg-green-900 p-2 mt-4 text-white flex w-fit items-center rounded">
-                Register Now{" "}
-                <MdOutlineArrowRightAlt color="white" className="ml-2" />
-              </Link>
+              {role === "pasien" ? (
+                <button
+                  className="bg-green-900 p-2 px-3 mt-4 text-white flex w-fit items-center rounded-md"
+                  onClick={() => handleOpenDaftarPoli()}
+                >
+                  Daftar Poli
+                  <MdOutlineArrowRightAlt color="white" className="ml-2" />
+                </button>
+              ) : role !== "" ? (
+                <Link
+                  to={`/${role}/${role === "admin" ? admin.id : dokter.id}`}
+                  className="bg-green-900 p-2 px-3 mt-4 text-white flex w-fit items-center rounded-md"
+                >
+                  Dashboard{" "}
+                  <MdOutlineArrowRightAlt color="white" className="ml-2" />
+                </Link>
+              ) : (
+                <Link
+                  to={`/register`}
+                  className="bg-green-900 p-2 px-3 mt-4 text-white flex w-fit items-center rounded-md"
+                >
+                  Register Now{" "}
+                  <MdOutlineArrowRightAlt color="white" className="ml-2" />
+                </Link>
+              )}
             </p>
           </div>
           <div className="flex justify-center">
@@ -142,6 +304,53 @@ const Home = () => {
               alt="hero"
             />
           </div>
+          <Modals
+            openModal={daftarPoli}
+            setOpenModal={handleCloseDaftarPoli}
+            title="Daftar Poli"
+            buttonClose={false}
+            body={
+              <form className="mt-[-1.5rem]" onSubmit={handleDaftarPoli}>
+                <Input
+                  label="Nomor Rekam Medis"
+                  type="text"
+                  placeholder="Nomor Rekam Medis"
+                  value={pasien.no_rm}
+                />
+                <ReactSelect
+                  data={poliOption}
+                  title="Poli"
+                  onChange={(e) => setSelectedPoli(e.label)}
+                />
+                <ReactSelect
+                  data={jadwal}
+                  title="Pilih Jadwal"
+                  disabled={selectedPoli === "" ? true : false}
+                  onChange={(e) =>
+                    setDaftarPoliForm({ ...daftarPoliForm, id_jadwal: e.value })
+                  }
+                />
+                <TextArea
+                  label="Keluhan"
+                  placeholder="Keluhan"
+                  onChange={(e) =>
+                    setDaftarPoliForm({
+                      ...daftarPoliForm,
+                      keluhan: e.target.value,
+                    })
+                  }
+                />
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    className="bg-green-900 p-2 px-3 mt-4 text-white w-fit rounded-md text-sm"
+                  >
+                    Daftar Poli
+                  </button>
+                </div>
+              </form>
+            }
+          />
         </section>
 
         {/* Services Section */}

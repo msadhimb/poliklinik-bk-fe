@@ -121,7 +121,7 @@ const Obat = () => {
 
           <div className="flex justify-end mt-4">
             <button
-              className="bg-slate-500 p-2 px-3 text-sm rounded-md rounded text-white"
+              className="bg-slate-500 p-2 px-3 text-sm rounded-md text-white"
               onClick={handleResetForm}
             >
               Reset Form
