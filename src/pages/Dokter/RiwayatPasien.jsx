@@ -1,15 +1,14 @@
 import { Table } from "flowbite-react";
-import { useLocation, useOutletContext } from "react-router-dom";
+import { useLocation, useOutletContext, useParams } from "react-router-dom";
 import Modals from "../../components/Modals";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { getPeriksa } from "../../config/Redux/Action/periksaAction";
 import {
-  getPeriksa,
-  getPeriksaByDafPol,
-} from "../../config/Redux/Action/periksaAction";
-import {
+  getAllPasien,
   getDaftarPoli,
-  getDetailPriksaByPeriksaId,
+  getDaftarPoliByPasienId,
+  getDetailPriksa,
 } from "../../config/Redux/Action";
 
 const RiwayatPasien = () => {
@@ -17,19 +16,21 @@ const RiwayatPasien = () => {
   const [openModal, setOpenModal] = useState(false);
   const [role] = useOutletContext();
   const dispatch = useDispatch();
-  const { periksa, periksaByDafPolId } = useSelector(
-    (state) => state.periksaReducer
+  const { periksa } = useSelector((state) => state.periksaReducer);
+  const { id } = useParams();
+  const { daftarPoli, daftarPoliByPasienId } = useSelector(
+    (state) => state.daftarPoliReducer
   );
-  const { daftarPoli } = useSelector((state) => state.daftarPoliReducer);
-  const { detailPriksaByPriksaId } = useSelector(
-    (state) => state.detailPeriksaReducer
-  );
+  const { detailPriksa } = useSelector((state) => state.detailPeriksaReducer);
+  const { pasienAll } = useSelector((state) => state.pasienReducer);
   const [riwayat, setRiwayat] = useState([]);
-  const [idDaftarPoli, setIdDaftarPoli] = useState("");
+  const [pasien, setPasien] = useState([]);
+  const [idPasien, setIdPasien] = useState("");
 
   const handleOpenModal = (id) => {
     setOpenModal(true);
-    setIdDaftarPoli(id);
+    setIdPasien(id);
+    dispatch(getDaftarPoliByPasienId(id));
   };
 
   const formatPriceInRupiah = (price) => {
@@ -45,31 +46,42 @@ const RiwayatPasien = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (idDaftarPoli) {
-      dispatch(getPeriksaByDafPol(idDaftarPoli));
-    }
-  }, [idDaftarPoli, dispatch]);
+    dispatch(getAllPasien());
+  }, [dispatch]);
 
   useEffect(() => {
-    daftarPoli.map((item) => {
-      periksa.map((item2) => {
-        if (item.id === item2.id_daftar_poli) {
-          setRiwayat((prev) => [...prev, item2]);
+    pasienAll?.map((item) => {
+      daftarPoli?.map((item2) => {
+        if (item.id === item2.id_pasien) {
+          setPasien([item]);
         }
       });
     });
 
     return () => {
-      setRiwayat([]);
+      setPasien([]);
     };
-  }, [daftarPoli, periksa]);
+  }, [pasienAll, daftarPoli]);
 
   useEffect(() => {
-    if (periksaByDafPolId) {
-      dispatch(getDetailPriksaByPeriksaId(periksaByDafPolId?.id));
+    if (daftarPoliByPasienId.length > 0) {
+      const filteredRiwayat = periksa.filter((item2) =>
+        daftarPoliByPasienId.some(
+          (item) =>
+            item.id === item2.id_daftar_poli &&
+            item2?.daftar_poli?.jadwal_periksa?.id_dokter === id &&
+            item.id_pasien === idPasien
+        )
+      );
+      setRiwayat(filteredRiwayat);
     }
-  }, [periksaByDafPolId, dispatch]);
-  console.log(detailPriksaByPriksaId);
+  }, [daftarPoliByPasienId, periksa, id, idPasien]);
+
+  useEffect(() => {
+    if (riwayat.length > 0) {
+      dispatch(getDetailPriksa());
+    }
+  }, [riwayat, dispatch]);
 
   useEffect(() => {
     if (role !== "dokter") {
@@ -99,19 +111,19 @@ const RiwayatPasien = () => {
                 <Table.HeadCell>Aksi</Table.HeadCell>
               </Table.Head>
               <Table.Body className="divide-y">
-                {riwayat.map((item, index) => {
+                {pasien.map((item, index) => {
                   return (
                     <Table.Row key={index}>
                       <Table.Cell>{index + 1}</Table.Cell>
-                      <Table.Cell>{item.daftar_poli.pasien.nama}</Table.Cell>
-                      <Table.Cell>{item.daftar_poli.pasien.alamat}</Table.Cell>
-                      <Table.Cell>{item.daftar_poli.pasien.no_ktp}</Table.Cell>
-                      <Table.Cell>{item.daftar_poli.pasien.no_hp}</Table.Cell>
-                      <Table.Cell>{item.daftar_poli.pasien.no_rm}</Table.Cell>
+                      <Table.Cell>{item.nama}</Table.Cell>
+                      <Table.Cell>{item.alamat}</Table.Cell>
+                      <Table.Cell>{item.no_ktp}</Table.Cell>
+                      <Table.Cell>{item.no_hp}</Table.Cell>
+                      <Table.Cell>{item.no_rm}</Table.Cell>
                       <Table.Cell>
                         <button
                           className="bg-[#1B4242]  p-2 rounded text-white mx-2"
-                          onClick={() => handleOpenModal(item.id_daftar_poli)}
+                          onClick={() => handleOpenModal(item.id)}
                         >
                           Detail Riwayat Periksa
                         </button>
@@ -120,60 +132,62 @@ const RiwayatPasien = () => {
                         openModal={openModal}
                         setOpenModal={setOpenModal}
                         size="xxl"
-                        title={"Riwayat " + item.daftar_poli.pasien.nama}
+                        title={"Riwayat " + item.nama}
                         body={
                           <div className="overflow-x-auto">
                             <Table striped>
                               <Table.Head>
+                                <Table.HeadCell>No</Table.HeadCell>
                                 <Table.HeadCell>Tanggal Periksa</Table.HeadCell>
                                 <Table.HeadCell>Nama Pasien</Table.HeadCell>
                                 <Table.HeadCell>Nama Dokter</Table.HeadCell>
                                 <Table.HeadCell>Keluhan</Table.HeadCell>
                                 <Table.HeadCell>Catatan</Table.HeadCell>
                                 <Table.HeadCell>Obat</Table.HeadCell>
-                                <Table.HeadCell>Biaya</Table.HeadCell>
+                                <Table.HeadCell>Biaya Priksa</Table.HeadCell>
+                                <Table.HeadCell>Total Biaya</Table.HeadCell>
                               </Table.Head>
                               <Table.Body className="divide-y">
-                                <Table.Row>
-                                  <Table.Cell>
-                                    {periksaByDafPolId?.tanggal}
-                                  </Table.Cell>
-                                  <Table.Cell>
-                                    {
-                                      periksaByDafPolId?.daftar_poli?.pasien
-                                        ?.nama
-                                    }
-                                  </Table.Cell>
-                                  <Table.Cell>
-                                    Dr.{" "}
-                                    {
-                                      periksaByDafPolId?.daftar_poli
-                                        ?.jadwal_periksa?.dokter?.nama
-                                    }
-                                  </Table.Cell>
-                                  <Table.Cell>
-                                    {periksaByDafPolId?.daftar_poli?.keluhan}
-                                  </Table.Cell>
-                                  <Table.Cell>
-                                    {periksaByDafPolId?.catatan}
-                                  </Table.Cell>
-                                  <Table.Cell>
-                                    {detailPriksaByPriksaId?.map(
-                                      (item, index) => {
-                                        return (
-                                          <div key={index}>
-                                            {item.obat.nama_obat}
-                                          </div>
-                                        );
+                                {riwayat?.map((item, index) => (
+                                  <Table.Row key={index}>
+                                    <Table.Cell>{index + 1}</Table.Cell>
+                                    <Table.Cell>{item.tanggal}</Table.Cell>
+                                    <Table.Cell>
+                                      {item.daftar_poli?.pasien?.nama}
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                      Dr.{" "}
+                                      {
+                                        item.daftar_poli?.jadwal_periksa?.dokter
+                                          ?.nama
                                       }
-                                    )}
-                                  </Table.Cell>
-                                  <Table.Cell>
-                                    {formatPriceInRupiah(
-                                      periksaByDafPolId?.biaya_periksa
-                                    )}
-                                  </Table.Cell>
-                                </Table.Row>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                      {item?.daftar_poli?.keluhan}
+                                    </Table.Cell>
+                                    <Table.Cell>{item?.catatan}</Table.Cell>
+                                    <Table.Cell>
+                                      {detailPriksa?.map((item2, index) => {
+                                        if (item2.id_periksa === item.id) {
+                                          return (
+                                            <div key={index}>
+                                              {item2?.obat?.nama_obat} -{" "}
+                                              {formatPriceInRupiah(
+                                                item2?.obat?.harga
+                                              )}
+                                            </div>
+                                          );
+                                        }
+                                      })}
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                      {formatPriceInRupiah(150000)}
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                      {formatPriceInRupiah(item.biaya_periksa)}
+                                    </Table.Cell>
+                                  </Table.Row>
+                                ))}
                               </Table.Body>
                             </Table>
                           </div>

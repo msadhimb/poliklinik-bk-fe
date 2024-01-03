@@ -28,7 +28,7 @@ const PeriksaPasien = () => {
   });
   const [obatOption, setObatOption] = useState([]);
   const [obatSelected, setObatSelected] = useState([]);
-  const [biayaPeriksa, setBiayaPeriksa] = useState(0);
+  const [biayaPeriksa, setBiayaPeriksa] = useState(150000);
   const nav = useNavigate();
 
   const formatPriceInRupiah = (price) => {
@@ -74,7 +74,7 @@ const PeriksaPasien = () => {
     if (obatSelected.length > 0) {
       const newBiayaPeriksa = obatSelected.reduce((acc, item) => {
         return acc + item.harga;
-      }, 0);
+      }, 150000);
       setBiayaPeriksa(newBiayaPeriksa);
     } else {
       setBiayaPeriksa(0);

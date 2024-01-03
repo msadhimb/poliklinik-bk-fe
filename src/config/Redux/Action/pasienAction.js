@@ -71,3 +71,16 @@ export const logoutPasien = (token, nav) => {
     }
   };
 };
+
+export const getAllPasien = () => {
+  return async (dispatch) => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}api/auth/pasien/getAll`
+      );
+      dispatch({ type: "SET_PASIEN_ALL", payload: res.data.data });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+};

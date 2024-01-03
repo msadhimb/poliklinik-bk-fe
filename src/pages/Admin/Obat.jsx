@@ -155,13 +155,13 @@ const Obat = () => {
                       <Table.Cell>{formatPriceInRupiah(item.harga)}</Table.Cell>
                       <Table.Cell>
                         <button
-                          className="bg-blue-500 p-2 px-3 rounded text-white mx-2"
+                          className="bg-[#5C8374] p-2 rounded text-white mx-2"
                           onClick={() => handleEdit(item.id)}
                         >
                           Edit
                         </button>
                         <button
-                          className="bg-red-500 p-2 px-3 rounded text-white mx-2"
+                          className="bg-red-500 p-2 rounded text-white mx-2"
                           onClick={() => handleDelete(item.id)}
                         >
                           Hapus

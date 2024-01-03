@@ -89,3 +89,20 @@ export const deleteDaftarPoli = (id, nav) => {
     }
   };
 };
+
+export const getDaftarPoliByPasienId = (id) => {
+  return async (dispatch) => {
+    dispatch({ type: "SET_IS_LOADING", payload: true });
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}api/daftar_poli/pasien/${id}`
+      );
+
+      console.log(data);
+
+      dispatch({ type: "SET_DAFTAR_POLI_BY_PASIEN_ID", payload: data.data });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+};

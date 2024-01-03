@@ -151,18 +151,23 @@ const Home = () => {
 
   useEffect(() => {
     if (jadwalPeriksa) {
-      const data = jadwalPeriksa.map((item) => {
-        if (item.dokter.poli.nama_poli === selectedPoli) {
-          return {
-            value: item.id,
-            label: `Dr. ${item.dokter.nama}, ${item.hari}, ${dateFormat(
-              item.tanggal
-            )}, jam ${timeFormat(item.jam_mulai)} sampai ${timeFormat(
-              item.jam_selesai
-            )}`,
-          };
-        }
-      });
+      const data = jadwalPeriksa
+        .map((item) => {
+          if (item.dokter.poli.nama_poli === selectedPoli) {
+            return {
+              value: item.id,
+              label: `Dr. ${item.dokter.nama}, ${item.hari}, ${dateFormat(
+                item.tanggal
+              )}, jam ${timeFormat(item.jam_mulai)} sampai ${timeFormat(
+                item.jam_selesai
+              )}`,
+            };
+          }
+          // Jika kondisi tidak terpenuhi, kembalikan null atau objek kosong
+          return null; // atau return {};
+        })
+        .filter((item) => item !== null); // Filter elemen yang bernilai null
+
       setJadwal(data);
     }
   }, [jadwalPeriksa, selectedPoli]);
