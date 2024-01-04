@@ -1,5 +1,5 @@
 import "./index.css";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import DashboardAdmin from "./pages/Admin/DashboardAdmin";
 import Dokter from "./pages/Admin/Dokter";
@@ -20,13 +20,17 @@ import "swiper/css/pagination";
 import LoginPortal from "./pages/Auth/LoginPortal";
 import { Provider } from "react-redux";
 import { store } from "./config";
+import "react-toastify/dist/ReactToastify.css";
+import { AnimatePresence } from "framer-motion";
+import DashboardDokter from "./pages/Dokter/DashboardDokter";
 
 function App() {
+  const location = useLocation();
   return (
     <>
       <Provider store={store}>
-        <BrowserRouter>
-          <Routes>
+        <AnimatePresence mode="wait" initial={false}>
+          <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Home />} />
             <Route path="/:id" element={<Home />} />
             <Route path="/login" element={<LoginPortal />} />
@@ -38,7 +42,7 @@ function App() {
               <Route path="obat/:id" element={<Obat />} />
             </Route>
             <Route path="/dokter" element={<Sidebar />}>
-              <Route path=":id" element={<DashboardAdmin />} />
+              <Route path=":id" element={<DashboardDokter />} />
               <Route path="jadwal-periksa/:id" element={<JadwalPeriksa />} />
               <Route
                 path="jadwal-periksa/kelola-jadwal/:id"
@@ -57,7 +61,7 @@ function App() {
               <Route path="profile/:id" element={<ProfileDokter />} />
             </Route>
           </Routes>
-        </BrowserRouter>
+        </AnimatePresence>
       </Provider>
     </>
   );

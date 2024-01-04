@@ -1,3 +1,5 @@
+import transition from "../../transition";
+
 const DashboardAdmin = () => {
   return (
     <div className="flex justify-center items-center w-full h-screen">
@@ -6,4 +8,4 @@ const DashboardAdmin = () => {
   );
 };
 
-export default DashboardAdmin;
+export default transition(DashboardAdmin);

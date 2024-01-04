@@ -52,7 +52,6 @@ const JadwalPeriksa = () => {
     const now = new Date();
 
     // Mendapatkan waktu satu jam ke depan dari saat ini
-    const oneHourBefore = new Date(now.getTime() - 60 * 60 * 1000); // Satu jam sebelum
 
     // Lakukan pengecekan untuk setiap item jadwalPeriksa
     const updatedJadwal = jadwalPeriksa.map((item) => {
@@ -60,10 +59,15 @@ const JadwalPeriksa = () => {
         // Mendapatkan waktu mulai dari jadwal periksa saat ini
         const tanggal = item.tanggal.split(" ")[0];
         const startTime = new Date(`${tanggal}T${item.jam_mulai}`);
+        const oneHourBefore = new Date(startTime.getTime() - 60 * 60 * 1000); // Satu jam sebelum
 
         // Jika waktu mulai dari jadwal periksa saat ini lebih dari satu jam sebelum waktu saat ini
         // maka disableEdit: false
-        if (startTime > oneHourBefore && startTime > now) {
+        if (
+          startTime > oneHourBefore &&
+          startTime > now &&
+          now <= oneHourBefore
+        ) {
           item.disableEdit = false;
         } else {
           item.disableEdit = true;
@@ -86,7 +90,7 @@ const JadwalPeriksa = () => {
   }, [role]);
 
   return (
-    <div className="container min-h-[90vh] m-5 my-[3rem]">
+    <div className="container min-h-[90vh] m-5 my-[3rem] mx-auto">
       <div className="flex justify-between">
         <h1 className="text-xl font-medium">Jadwal Periksa</h1>
         <h1>{pathName}</h1>

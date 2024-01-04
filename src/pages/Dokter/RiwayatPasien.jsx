@@ -48,20 +48,22 @@ const RiwayatPasien = () => {
   useEffect(() => {
     dispatch(getAllPasien());
   }, [dispatch]);
-
   useEffect(() => {
-    pasienAll?.map((item) => {
-      daftarPoli?.map((item2) => {
-        if (item.id === item2.id_pasien) {
-          setPasien([item]);
-        }
-      });
-    });
+    // Menggunakan filter untuk menyaring pasien yang cocok
+    const matchedPatients = pasienAll?.filter((item1) =>
+      daftarPoli?.some(
+        (item2) =>
+          item1.id === item2.id_pasien && item2.jadwal_periksa.id_dokter === id
+      )
+    );
+
+    // Mengatur state pasien dengan array yang berisi pasien yang cocok
+    setPasien(matchedPatients || []);
 
     return () => {
-      setPasien([]);
+      setPasien([]); // Mengosongkan state pasien ketika komponen di-unmount
     };
-  }, [pasienAll, daftarPoli]);
+  }, [pasienAll, daftarPoli, id, periksa]);
 
   useEffect(() => {
     if (daftarPoliByPasienId.length > 0) {
@@ -89,7 +91,7 @@ const RiwayatPasien = () => {
     }
   }, [role]);
   return (
-    <div className="container min-h-[90vh] m-5 my-[3rem]">
+    <div className="container min-h-[90vh] m-5 my-[3rem] mx-auto">
       <div className="flex justify-between">
         <h1 className="text-xl font-medium">Riwayat Pasien</h1>
         <h1>{pathName}</h1>

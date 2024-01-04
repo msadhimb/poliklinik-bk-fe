@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 export const getAllDokter = () => {
@@ -33,30 +34,41 @@ export const getDokter = (token, isLogin = false, nav) => {
   };
 };
 
-export const registerDokter = (data) => {
+export const registerDokter = (data, loading) => {
   return async (dispatch) => {
-    dispatch({ type: "SET_IS_LOADING", payload: true });
+    if (loading) loading(true);
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}api/auth/dokter/`, data);
+      toast.success("Registrasi Berhasil");
+      if (loading) loading(false);
       dispatch(getAllDokter());
     } catch (err) {
       console.log(err);
+      toast.error(err.response.data.error);
     }
   };
 };
 
-export const loginDokter = (data, nav) => {
+export const loginDokter = (data, nav, setLoading, setDokter) => {
   return async (dispatch) => {
-    dispatch({ type: "SET_IS_LOADING", payload: true });
+    setLoading(true);
+    const timer = 2000;
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}api/auth/dokter/login`,
         data
       );
       localStorage.setItem("token", res.data.access_token);
-      dispatch(getDokter(res.data.access_token, true, nav));
+      toast.success("Login Berhasil", { autoClose: timer });
+      setTimeout(() => {
+        dispatch(getDokter(res.data.access_token, true, nav));
+        setLoading(false);
+        setDokter(false);
+      }, timer);
     } catch (err) {
       console.log(err);
+      toast.error(err.response.data.error);
+      setLoading(false);
     }
   };
 };
@@ -90,15 +102,23 @@ export const getDokterById = (id) => {
   };
 };
 
-export const updateDokter = (id, data) => {
-  return async () => {
+export const updateDokter = (id, data, loading, edit) => {
+  return async (dispatch) => {
+    if (loading) loading(true);
     try {
       await axios.put(
         `${import.meta.env.VITE_API_URL}api/auth/dokter/update/${id}`,
         data
       );
+      if (loading && edit) {
+        loading(false);
+        edit(false);
+      }
+      toast.success("Berhasil diupdate");
+      dispatch(getAllDokter());
     } catch (err) {
       console.log(err);
+      toast.error(err.response.data.error);
     }
   };
 };

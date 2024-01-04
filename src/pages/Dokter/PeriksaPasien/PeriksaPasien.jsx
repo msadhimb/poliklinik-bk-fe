@@ -77,7 +77,7 @@ const PeriksaPasien = () => {
       }, 150000);
       setBiayaPeriksa(newBiayaPeriksa);
     } else {
-      setBiayaPeriksa(0);
+      setBiayaPeriksa(150000);
     }
   }, [obatSelected]);
 
@@ -87,7 +87,7 @@ const PeriksaPasien = () => {
     }
   }, [role]);
   return (
-    <div className="container min-h-[90vh] m-5 my-[3rem]">
+    <div className="container min-h-[90vh] m-5 my-[3rem] mx-auto">
       <div className="flex justify-between">
         <h1 className="text-xl font-medium">Periksa </h1>
         <h1>{pathName}</h1>

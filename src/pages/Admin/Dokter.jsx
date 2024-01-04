@@ -1,16 +1,16 @@
 import { useLocation, useOutletContext } from "react-router-dom";
 import Input from "../../components/Input";
-import { Table } from "flowbite-react";
+import { Spinner, Table } from "flowbite-react";
 import TextArea from "../../components/TextArea";
 import { useEffect, useState } from "react";
 import ReactSelect from "../../components/ReactSelect";
 import { useDispatch, useSelector } from "react-redux";
 import { getPoli, getPoliById } from "../../config/Redux/Action/poliAction";
 import {
-  deleteDokter,
   getAllDokter,
   getDokterById,
   registerDokter,
+  updateDokter,
 } from "../../config/Redux/Action/dokterAction";
 import Modals from "../../components/Modals";
 
@@ -33,10 +33,20 @@ const Dokter = () => {
   });
   const [editDokter, setEditDokter] = useState(false);
   const [poliEditSelected, setPoliEditSelected] = useState([]);
+  const [dokterId, setDokterId] = useState("");
+  const [editDokterForm, setEditDokterForm] = useState({
+    nama: dokterById?.nama,
+    alamat: dokterById?.alamat,
+    no_hp: dokterById?.no_hp,
+    id_poli: poliEditSelected?.value,
+    username: dokterById?.username,
+    role: "dokter",
+  });
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(registerDokter(dokterForm));
+    dispatch(registerDokter(dokterForm, setLoading));
     setDokterForm({
       nama: "",
       alamat: "",
@@ -51,11 +61,12 @@ const Dokter = () => {
 
   const handleEdit = (id) => {
     setEditDokter(true);
-    dispatch(getDokterById(id));
+    setDokterId(id);
   };
 
-  const handleDelete = (id) => {
-    dispatch(deleteDokter(id));
+  const handleUpdate = (e) => {
+    e.preventDefault();
+    dispatch(updateDokter(dokterId, editDokterForm, setLoading, setEditDokter));
   };
 
   useEffect(() => {
@@ -63,15 +74,15 @@ const Dokter = () => {
   }, [poliSelected]);
 
   useEffect(() => {
-    dispatch(getPoli());
-    dispatch(getAllDokter());
-  }, [dispatch]);
-
-  useEffect(() => {
     if (dokterById) {
       dispatch(getPoliById(dokterById.id_poli));
     }
   }, [dokterById, dispatch]);
+
+  useEffect(() => {
+    dispatch(getPoli());
+    dispatch(getAllDokter());
+  }, [dispatch]);
 
   useEffect(() => {
     if (poliById) {
@@ -96,13 +107,36 @@ const Dokter = () => {
   }, [poli]);
 
   useEffect(() => {
+    if (dokterId) {
+      dispatch(getDokterById(dokterId));
+    }
+  }, [dokterId, dispatch]);
+
+  useEffect(() => {
+    if (dokterById) {
+      setEditDokterForm({
+        nama: dokterById.nama,
+        alamat: dokterById.alamat,
+        no_hp: dokterById.no_hp,
+        username: dokterById.username,
+        role: "dokter",
+      });
+    }
+  }, [dokterById]);
+
+  useEffect(() => {
+    setEditDokterForm({ ...editDokterForm, id_poli: poliEditSelected?.value });
+  }, [poliEditSelected]);
+
+  useEffect(() => {
     if (role !== "admin") {
       window.location.href = "/";
     }
   }, [role]);
+
   return (
     <>
-      <div className="container min-h-[90vh] m-5 my-[3rem]">
+      <div className="container min-h-[90vh] m-5 my-[3rem] mx-auto">
         <div className="flex justify-between">
           <h1 className="text-xl font-medium">Dokter</h1>
           <h1>{pathName}</h1>
@@ -161,15 +195,27 @@ const Dokter = () => {
           />
 
           <div className="flex justify-end mt-4">
-            <button className="bg-slate-500 p-2 px-3 text-sm rounded text-white">
+            <button
+              className="bg-slate-500 p-2 px-3 text-sm rounded text-white"
+              type="reset"
+            >
               Reset Form
             </button>
-            <button
-              className="bg-[#1B4242] p-2 text-sm px-3 rounded text-white mx-2"
-              type="submit"
-            >
-              Tambah
-            </button>
+            {loading ? (
+              <button
+                className="bg-[#1B4242] p-2 text-sm px-3 rounded text-white mx-2 cursor-default "
+                type="button"
+              >
+                <Spinner color="success" />
+              </button>
+            ) : (
+              <button
+                className="bg-[#1B4242] p-2 text-sm px-3 rounded text-white mx-2"
+                type="submit"
+              >
+                Tambah
+              </button>
+            )}
           </div>
         </form>
 
@@ -203,64 +249,93 @@ const Dokter = () => {
                         >
                           Edit
                         </button>
-                        <button
-                          className="bg-red-500 p-2 rounded text-white"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          Hapus
-                        </button>
                       </Table.Cell>
-                      <Modals
-                        openModal={editDokter}
-                        setOpenModal={() => setEditDokter(false)}
-                        title="Edit Dokter"
-                        buttonClose={false}
-                        body={
-                          <form>
-                            <Input
-                              label="Nama"
-                              type="text"
-                              placeholder="Nama Dokter"
-                              value={dokterById.nama}
-                            />
-                            <TextArea
-                              label="Alamat"
-                              type="text"
-                              placeholder="Alamat Dokter"
-                              value={dokterById.alamat}
-                            />
-                            <Input
-                              label="No HP"
-                              type="number"
-                              placeholder="No. HP Dokter"
-                              value={dokterById.no_hp}
-                            />
-                            <ReactSelect
-                              title="Poli"
-                              data={poliOption}
-                              value={poliEditSelected}
-                            />
-                            <Input
-                              label="Username"
-                              type="text"
-                              placeholder="Username"
-                              value={dokterById.username}
-                            />
-                            <div className="flex justify-end">
-                              <button
-                                className="bg-[#1B4242] p-2 text-sm px-3 mt-5 rounded text-white"
-                                type="submit"
-                              >
-                                Edit
-                              </button>
-                            </div>
-                          </form>
-                        }
-                      />
                     </Table.Row>
                   ))}
                 </Table.Body>
               </Table>
+              <Modals
+                openModal={editDokter}
+                setOpenModal={() => setEditDokter(false)}
+                title="Edit Dokter"
+                buttonClose={false}
+                body={
+                  <form onSubmit={handleUpdate}>
+                    <Input
+                      label="Nama"
+                      type="text"
+                      placeholder="Nama Dokter"
+                      value={editDokterForm?.nama}
+                      onChange={(e) =>
+                        setEditDokterForm({
+                          ...editDokterForm,
+                          nama: e.target.value,
+                        })
+                      }
+                    />
+                    <TextArea
+                      label="Alamat"
+                      type="text"
+                      placeholder="Alamat Dokter"
+                      value={editDokterForm?.alamat}
+                      onChange={(e) =>
+                        setEditDokterForm({
+                          ...editDokterForm,
+                          alamat: e.target.value,
+                        })
+                      }
+                    />
+                    <Input
+                      label="No HP"
+                      type="number"
+                      placeholder="No. HP Dokter"
+                      value={editDokterForm?.no_hp}
+                      onChange={(e) =>
+                        setEditDokterForm({
+                          ...editDokterForm,
+                          no_hp: e.target.value,
+                        })
+                      }
+                    />
+                    <ReactSelect
+                      title="Poli"
+                      data={poliOption}
+                      value={poliEditSelected}
+                      onChange={(e) => setPoliEditSelected(e)}
+                    />
+                    <Input
+                      label="Username"
+                      type="text"
+                      placeholder="Username"
+                      value={editDokterForm?.username}
+                      onChange={(e) =>
+                        setEditDokterForm({
+                          ...editDokterForm,
+                          username: e.target.value,
+                        })
+                      }
+                    />
+                    <div className="flex justify-end">
+                      {loading ? (
+                        <button
+                          className="bg-[#1B4242] p-2 text-sm px-3 mt-5 rounded text-white"
+                          type="button"
+                          disabled
+                        >
+                          <Spinner color="white" />
+                        </button>
+                      ) : (
+                        <button
+                          className="bg-[#1B4242] p-2 text-sm px-3 mt-5 rounded text-white"
+                          type="submit"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                }
+              />
             </div>
           </div>
         </div>

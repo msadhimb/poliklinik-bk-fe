@@ -26,6 +26,10 @@ import Modals from "../components/Modals";
 import Input from "../components/Input";
 import ReactSelect from "../components/ReactSelect";
 import TextArea from "../components/TextArea";
+import { FaAngleDown } from "react-icons/fa6";
+import { HiLogout } from "react-icons/hi";
+import { ToastContainer } from "react-toastify";
+import transition from "../transition";
 
 const Home = () => {
   const { id } = useParams();
@@ -151,9 +155,15 @@ const Home = () => {
 
   useEffect(() => {
     if (jadwalPeriksa) {
+      const currentDate = new Date();
       const data = jadwalPeriksa
         .map((item) => {
-          if (item.dokter.poli.nama_poli === selectedPoli) {
+          const date = item.tanggal.split(" ")[0];
+          const time = new Date(`${date}T${item.jam_mulai}`);
+          if (
+            item.dokter.poli.nama_poli === selectedPoli &&
+            time >= currentDate
+          ) {
             return {
               value: item.id,
               label: `Dr. ${item.dokter.nama}, ${item.hari}, ${dateFormat(
@@ -174,6 +184,7 @@ const Home = () => {
 
   return (
     <>
+      <ToastContainer />
       <Navbar rounded className="shadow-md py-5 bg-[#092635]">
         <Navbar.Brand as={Link} href="https://flowbite-react.com">
           <img
@@ -211,48 +222,53 @@ const Home = () => {
                   Dashboard
                 </Link>
               )}
-              <Dropdown
-                renderTrigger={() => (
-                  <div className="flex items-center">
-                    <div className="flex flex-col justify-center items-end mr-2">
-                      <h3 className=" font-bold text-white">
-                        {admin.username
-                          ? admin.username
-                          : dokter.username
-                          ? dokter.username
-                          : pasien.username}
-                      </h3>
-                      <span className=" text-[12px] text-white">
-                        {admin.role
-                          ? admin.role
-                          : dokter.role
-                          ? dokter.role
-                          : pasien.role}
-                      </span>
+              <div className="flex items-center">
+                <Dropdown
+                  renderTrigger={() => (
+                    <div className="flex items-center cursor-pointer">
+                      <div className="flex flex-col justify-center items-end">
+                        <h3 className=" font-bold text-white">
+                          {admin.username
+                            ? admin.username
+                            : dokter.username
+                            ? dokter.username
+                            : pasien.username}
+                        </h3>
+                        <span className=" text-[12px] text-white">
+                          {admin.role
+                            ? admin.role
+                            : dokter.role
+                            ? dokter.role
+                            : pasien.role}
+                        </span>
+                      </div>
+                      <FaAngleDown className="text-white mr-2 ml-1" />
                     </div>
-                    <img
-                      src="https://i.pravatar.cc/150?img=3"
-                      alt="user"
-                      className="w-10 h-10 rounded-full"
-                    />
-                  </div>
-                )}
-                dismissOnClick={false}
-                className="bg-red-500"
-              >
-                <Dropdown.Item
-                  className="text-white hover:text-black"
-                  onClick={
-                    role === "admin"
-                      ? () => handleLogoutAdmin()
-                      : role === "dokter"
-                      ? () => handleLogoutDokter()
-                      : () => handleLogoutPasien()
-                  }
+                  )}
+                  dismissOnClick={false}
+                  className="flex flex-col items-center py-3 px-5"
                 >
-                  Logout
-                </Dropdown.Item>
-              </Dropdown>
+                  <button
+                    className="flex items-center bg-red-500 hover:bg-red-600 p-2 px-3 text-white rounded-md w-full"
+                    onClick={
+                      role === "admin"
+                        ? () => handleLogoutAdmin()
+                        : role === "dokter"
+                        ? () => handleLogoutDokter()
+                        : () => handleLogoutPasien()
+                    }
+                  >
+                    <HiLogout className="mr-2" />
+                    Logout
+                  </button>
+                </Dropdown>
+
+                <img
+                  src="https://i.pravatar.cc/150?img=3"
+                  alt="user"
+                  className="w-10 h-10 rounded-full"
+                />
+              </div>
             </>
           ) : (
             <Link to={"/login"}>
@@ -321,6 +337,7 @@ const Home = () => {
                   type="text"
                   placeholder="Nomor Rekam Medis"
                   value={pasien.no_rm}
+                  disabled={true}
                 />
                 <ReactSelect
                   data={poliOption}
@@ -488,4 +505,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default transition(Home);

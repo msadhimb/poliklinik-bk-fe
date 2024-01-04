@@ -13,10 +13,12 @@ import udinus from "../assets/logo/udinus.png";
 import NavbarDashboard from "./NavbarDashboard";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { CiMedicalClipboard } from "react-icons/ci";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getAdmin } from "../config/Redux/Action/adminAction";
 import { useDispatch, useSelector } from "react-redux";
 import { getDokter } from "../config/Redux/Action/dokterAction";
+import { motion } from "framer-motion";
+import { ToastContainer } from "react-toastify";
 
 const Sidebars = () => {
   const pathName = useLocation().pathname;
@@ -27,6 +29,7 @@ const Sidebars = () => {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     if (role === "admin") {
@@ -62,8 +65,13 @@ const Sidebars = () => {
 
   return (
     <>
+      <ToastContainer />
       <div className="flex h-screen">
-        <nav className="sidebar bg-[#092635] w-fit p-2 h-screen">
+        <motion.nav
+          className={`sidebar bg-[#092635] w-fit p-2 h-screen`}
+          initial={{ width: "auto" }}
+          animate={isSidebarOpen ? { width: "auto" } : { width: 0, padding: 0 }}
+        >
           <div className="flex flex-row items-center justify-start p-4">
             <img src={udinus} alt="udinus" className="w-10 h-10" />
             <h1 className="ml-3 text-white font-bold">Poliklinik BK</h1>
@@ -165,10 +173,13 @@ const Sidebars = () => {
               </>
             )}
           </ul>
-        </nav>
-        <div className="flex flex-col w-full overflow-auto">
-          <NavbarDashboard />
-          <main className="bg-[#F0F4F8] overflow-y-auto max-h-[100vh]">
+        </motion.nav>
+        <div className={`flex flex-col overflow-auto w-full`}>
+          <NavbarDashboard
+            isSidebarOpen={isSidebarOpen}
+            setSidebarOpen={setIsSidebarOpen}
+          />
+          <main className="bg-[#F0F4F8] overflow-y-auto max-h-[100vh] w-full">
             <Outlet context={[role]} />
           </main>
         </div>

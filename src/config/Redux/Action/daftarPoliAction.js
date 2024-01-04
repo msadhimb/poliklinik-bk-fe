@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export const getDaftarPoli = () => {
   return async (dispatch) => {
@@ -30,7 +31,7 @@ export const getDaftarPoliById = (id) => {
   };
 };
 
-export const addDaftarPoli = (data, nav) => {
+export const addDaftarPoli = (data) => {
   return async (dispatch) => {
     dispatch({ type: "SET_IS_LOADING", payload: true });
     try {
@@ -44,10 +45,11 @@ export const addDaftarPoli = (data, nav) => {
         }
       );
       console.log(res);
-      nav("/admin/daftar-poli");
       dispatch(getDaftarPoli());
+      toast.success("Data berhasil ditambahkan");
     } catch (err) {
       console.log(err);
+      toast.error("Data gagal ditambahkan");
     }
   };
 };
