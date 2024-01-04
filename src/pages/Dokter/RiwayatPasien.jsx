@@ -9,6 +9,7 @@ import {
   getDaftarPoli,
   getDaftarPoliByPasienId,
   getDetailPriksa,
+  getPasienById,
 } from "../../config/Redux/Action";
 
 const RiwayatPasien = () => {
@@ -22,7 +23,7 @@ const RiwayatPasien = () => {
     (state) => state.daftarPoliReducer
   );
   const { detailPriksa } = useSelector((state) => state.detailPeriksaReducer);
-  const { pasienAll } = useSelector((state) => state.pasienReducer);
+  const { pasienAll, pasienById } = useSelector((state) => state.pasienReducer);
   const [riwayat, setRiwayat] = useState([]);
   const [pasien, setPasien] = useState([]);
   const [idPasien, setIdPasien] = useState("");
@@ -30,7 +31,6 @@ const RiwayatPasien = () => {
   const handleOpenModal = (id) => {
     setOpenModal(true);
     setIdPasien(id);
-    dispatch(getDaftarPoliByPasienId(id));
   };
 
   const formatPriceInRupiah = (price) => {
@@ -48,20 +48,38 @@ const RiwayatPasien = () => {
   useEffect(() => {
     dispatch(getAllPasien());
   }, [dispatch]);
-  useEffect(() => {
-    // Menggunakan filter untuk menyaring pasien yang cocok
-    const matchedPatients = pasienAll?.filter((item1) =>
-      daftarPoli?.some(
-        (item2) =>
-          item1.id === item2.id_pasien && item2.jadwal_periksa.id_dokter === id
-      )
-    );
 
-    // Mengatur state pasien dengan array yang berisi pasien yang cocok
-    setPasien(matchedPatients || []);
+  useEffect(() => {
+    if (idPasien) {
+      dispatch(getDaftarPoliByPasienId(idPasien));
+    }
+  }, [dispatch, idPasien]);
+
+  useEffect(() => {
+    const matchedPatients = periksa
+      .map((item) => {
+        return daftarPoli.find(
+          (item2) =>
+            item.id_daftar_poli === item2.id &&
+            item2.jadwal_periksa.id_dokter === id
+        );
+      })
+      .filter((matchedItem) => matchedItem !== undefined);
+
+    const matchedPatients2 = matchedPatients
+      .map((item) => {
+        return pasienAll.find((item2) => item2.id === item.id_pasien);
+      })
+      .filter((matchedItem) => matchedItem !== undefined);
+
+    const uniquePatients = [
+      ...new Map(matchedPatients2.map((item) => [item.id, item])).values(),
+    ];
+
+    setPasien(uniquePatients || []);
 
     return () => {
-      setPasien([]); // Mengosongkan state pasien ketika komponen di-unmount
+      setPasien([]);
     };
   }, [pasienAll, daftarPoli, id, periksa]);
 
@@ -84,6 +102,12 @@ const RiwayatPasien = () => {
       dispatch(getDetailPriksa());
     }
   }, [riwayat, dispatch]);
+
+  useEffect(() => {
+    if (idPasien) {
+      dispatch(getPasienById(idPasien));
+    }
+  }, [dispatch, idPasien]);
 
   useEffect(() => {
     if (role !== "dokter") {
@@ -130,76 +154,66 @@ const RiwayatPasien = () => {
                           Detail Riwayat Periksa
                         </button>
                       </Table.Cell>
-                      <Modals
-                        openModal={openModal}
-                        setOpenModal={setOpenModal}
-                        size="xxl"
-                        title={"Riwayat " + item.nama}
-                        body={
-                          <div className="overflow-x-auto">
-                            <Table striped>
-                              <Table.Head>
-                                <Table.HeadCell>No</Table.HeadCell>
-                                <Table.HeadCell>Tanggal Periksa</Table.HeadCell>
-                                <Table.HeadCell>Nama Pasien</Table.HeadCell>
-                                <Table.HeadCell>Nama Dokter</Table.HeadCell>
-                                <Table.HeadCell>Keluhan</Table.HeadCell>
-                                <Table.HeadCell>Catatan</Table.HeadCell>
-                                <Table.HeadCell>Obat</Table.HeadCell>
-                                <Table.HeadCell>Biaya Priksa</Table.HeadCell>
-                                <Table.HeadCell>Total Biaya</Table.HeadCell>
-                              </Table.Head>
-                              <Table.Body className="divide-y">
-                                {riwayat?.map((item, index) => (
-                                  <Table.Row key={index}>
-                                    <Table.Cell>{index + 1}</Table.Cell>
-                                    <Table.Cell>{item.tanggal}</Table.Cell>
-                                    <Table.Cell>
-                                      {item.daftar_poli?.pasien?.nama}
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                      Dr.{" "}
-                                      {
-                                        item.daftar_poli?.jadwal_periksa?.dokter
-                                          ?.nama
-                                      }
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                      {item?.daftar_poli?.keluhan}
-                                    </Table.Cell>
-                                    <Table.Cell>{item?.catatan}</Table.Cell>
-                                    <Table.Cell>
-                                      {detailPriksa?.map((item2, index) => {
-                                        if (item2.id_periksa === item.id) {
-                                          return (
-                                            <div key={index}>
-                                              {item2?.obat?.nama_obat} -{" "}
-                                              {formatPriceInRupiah(
-                                                item2?.obat?.harga
-                                              )}
-                                            </div>
-                                          );
-                                        }
-                                      })}
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                      {formatPriceInRupiah(150000)}
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                      {formatPriceInRupiah(item.biaya_periksa)}
-                                    </Table.Cell>
-                                  </Table.Row>
-                                ))}
-                              </Table.Body>
-                            </Table>
-                          </div>
-                        }
-                      />
                     </Table.Row>
                   );
                 })}
               </Table.Body>
             </Table>
+            <Modals
+              openModal={openModal}
+              setOpenModal={setOpenModal}
+              size="xxl"
+              title={"Riwayat " + pasienById?.nama}
+              body={
+                <div className="overflow-x-auto">
+                  <Table striped>
+                    <Table.Head>
+                      <Table.HeadCell>No</Table.HeadCell>
+                      <Table.HeadCell>Tanggal Periksa</Table.HeadCell>
+                      <Table.HeadCell>Nama Pasien</Table.HeadCell>
+                      <Table.HeadCell>Nama Dokter</Table.HeadCell>
+                      <Table.HeadCell>Keluhan</Table.HeadCell>
+                      <Table.HeadCell>Catatan</Table.HeadCell>
+                      <Table.HeadCell>Obat</Table.HeadCell>
+                      <Table.HeadCell>Biaya Priksa</Table.HeadCell>
+                      <Table.HeadCell>Total Biaya</Table.HeadCell>
+                    </Table.Head>
+                    <Table.Body className="divide-y">
+                      {riwayat?.map((item, index) => (
+                        <Table.Row key={index}>
+                          <Table.Cell>{index + 1}</Table.Cell>
+                          <Table.Cell>{item.tanggal}</Table.Cell>
+                          <Table.Cell>
+                            {item.daftar_poli?.pasien?.nama}
+                          </Table.Cell>
+                          <Table.Cell>
+                            Dr. {item.daftar_poli?.jadwal_periksa?.dokter?.nama}
+                          </Table.Cell>
+                          <Table.Cell>{item?.daftar_poli?.keluhan}</Table.Cell>
+                          <Table.Cell>{item?.catatan}</Table.Cell>
+                          <Table.Cell>
+                            {detailPriksa?.map((item2, index) => {
+                              if (item2.id_periksa === item.id) {
+                                return (
+                                  <div key={index}>
+                                    {item2?.obat?.nama_obat} -{" "}
+                                    {formatPriceInRupiah(item2?.obat?.harga)}
+                                  </div>
+                                );
+                              }
+                            })}
+                          </Table.Cell>
+                          <Table.Cell>{formatPriceInRupiah(150000)}</Table.Cell>
+                          <Table.Cell>
+                            {formatPriceInRupiah(item.biaya_periksa)}
+                          </Table.Cell>
+                        </Table.Row>
+                      ))}
+                    </Table.Body>
+                  </Table>
+                </div>
+              }
+            />
           </div>
         </div>
       </div>
@@ -208,5 +222,3 @@ const RiwayatPasien = () => {
 };
 
 export default RiwayatPasien;
-
-//
