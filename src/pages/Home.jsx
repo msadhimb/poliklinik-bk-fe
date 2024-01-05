@@ -310,7 +310,7 @@ const Home = () => {
                 </Link>
               ) : (
                 <Link
-                  to={`/register`}
+                  to={`/login`}
                   className="bg-green-900 p-2 px-3 mt-4 text-white flex w-fit items-center rounded-md"
                 >
                   Register Now{" "}
