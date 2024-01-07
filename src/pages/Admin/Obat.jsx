@@ -81,7 +81,7 @@ const Obat = () => {
 
   return (
     <>
-      <div className="container min-h-[90vh] m-5 my-[3rem] mx-auto">
+      <div className="container min-h-[90vh] m-5 my-[3rem]">
         <div className="flex justify-between">
           <h1 className="text-xl font-medium">Obat</h1>
           <h1>{pathName}</h1>

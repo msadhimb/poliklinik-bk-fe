@@ -179,7 +179,7 @@ const Sidebars = () => {
             isSidebarOpen={isSidebarOpen}
             setSidebarOpen={setIsSidebarOpen}
           />
-          <main className="bg-[#F0F4F8] overflow-y-auto max-h-[100vh] w-full">
+          <main className="bg-[#F0F4F8] overflow-y-auto max-h-[100vh] w-full flex justify-center">
             <Outlet context={[role]} />
           </main>
         </div>
