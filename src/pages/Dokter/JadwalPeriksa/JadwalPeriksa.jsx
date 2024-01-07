@@ -8,10 +8,7 @@ import {
   useOutletContext,
   useParams,
 } from "react-router-dom";
-import {
-  deleteJadwalPeriksa,
-  getJadwalPeriksa,
-} from "../../../config/Redux/Action/jadwalPeriksaAction";
+import { getJadwalPeriksa } from "../../../config/Redux/Action/jadwalPeriksaAction";
 
 const JadwalPeriksa = () => {
   const pathName = useLocation().pathname;
@@ -43,35 +40,10 @@ const JadwalPeriksa = () => {
     return `${day} ${month} ${year}`;
   };
 
-  const handleDelete = (id) => {
-    dispatch(deleteJadwalPeriksa(id));
-  };
-
   useEffect(() => {
-    // Mendapatkan waktu saat ini
-    const now = new Date();
-
-    // Mendapatkan waktu satu jam ke depan dari saat ini
-
-    // Lakukan pengecekan untuk setiap item jadwalPeriksa
     const updatedJadwal = jadwalPeriksa.map((item) => {
       if (item.id_dokter === id) {
-        // Mendapatkan waktu mulai dari jadwal periksa saat ini
-        const tanggal = item.tanggal.split(" ")[0];
-        const startTime = new Date(`${tanggal}T${item.jam_mulai}`);
-        const oneHourBefore = new Date(startTime.getTime() - 60 * 60 * 1000); // Satu jam sebelum
-
-        // Jika waktu mulai dari jadwal periksa saat ini lebih dari satu jam sebelum waktu saat ini
-        // maka disableEdit: false
-        if (
-          startTime > oneHourBefore &&
-          startTime > now &&
-          now <= oneHourBefore
-        ) {
-          item.disableEdit = false;
-        } else {
-          item.disableEdit = true;
-        }
+        return item;
       }
       return item;
     });
@@ -115,11 +87,14 @@ const JadwalPeriksa = () => {
                 <Table.HeadCell>Jam Mulai</Table.HeadCell>
                 <Table.HeadCell>Jam Selesai</Table.HeadCell>
                 <Table.HeadCell>Tanggal</Table.HeadCell>
+                <Table.HeadCell>Status</Table.HeadCell>
+
                 <Table.HeadCell>Aksi</Table.HeadCell>
               </Table.Head>
               <Table.Body className="divide-y">
-                {jadwal.map((item, index) => {
-                  if (item.id_dokter === id) {
+                {jadwal
+                  .filter((item) => item.id_dokter === id)
+                  .map((item, index) => {
                     return (
                       <Table.Row key={index}>
                         <Table.Cell>{index + 1}</Table.Cell>
@@ -129,27 +104,19 @@ const JadwalPeriksa = () => {
                         <Table.Cell>{timeFormat(item.jam_selesai)}</Table.Cell>
                         <Table.Cell>{dateFormat(item.tanggal)}</Table.Cell>
                         <Table.Cell>
+                          {item.status_aktif === "Y" ? "Aktif" : "Tidak Aktif"}
+                        </Table.Cell>
+                        <Table.Cell>
                           <Link
-                            className={`bg-[#5C8374] p-2 rounded text-white mx-2 ${
-                              item.disableEdit
-                                ? "opacity-50 pointer-events-none"
-                                : ""
-                            }`}
+                            className={`bg-[#5C8374] p-2 rounded text-white mx-2 `}
                             to={`/dokter/jadwal-periksa/kelola-jadwal/${item.id}/${id}`}
                           >
                             Edit
                           </Link>
-                          <button
-                            className="bg-red-500 p-2 rounded text-white"
-                            onClick={() => handleDelete(item.id)}
-                          >
-                            Hapus
-                          </button>
                         </Table.Cell>
                       </Table.Row>
                     );
-                  }
-                })}
+                  })}
               </Table.Body>
             </Table>
           </div>

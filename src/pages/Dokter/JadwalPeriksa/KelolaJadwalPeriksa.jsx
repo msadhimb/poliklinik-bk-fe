@@ -8,6 +8,7 @@ import {
   getJadwalPeriksaById,
   updateJadwalPeriksa,
 } from "../../../config/Redux/Action/jadwalPeriksaAction";
+import ReactSelect from "../../../components/ReactSelect";
 
 const KelolaJadwalPeriksa = () => {
   const pathName = useLocation().pathname;
@@ -24,6 +25,7 @@ const KelolaJadwalPeriksa = () => {
     jam_mulai: "",
     jam_selesai: "",
     tanggal: "",
+    status_aktif: "",
   });
 
   const handleSubmit = (e) => {
@@ -41,22 +43,34 @@ const KelolaJadwalPeriksa = () => {
   };
 
   useEffect(() => {
-    if (idJadwal) {
+    if (idJadwal !== undefined && idJadwal !== null) {
+      // Lakukan sesuatu ketika idJadwal memiliki nilai yang valid
       dispatch(getJadwalPeriksaById(idJadwal));
+    } else {
+      // Jika idJadwal adalah null atau undefined, atur kembali addForm
+      setAddForm({
+        id_dokter: id,
+        hari: "",
+        jam_mulai: "",
+        jam_selesai: "",
+        tanggal: "",
+        status_aktif: "",
+      });
     }
-  }, [dispatch, idJadwal]);
+  }, [dispatch, id, idJadwal]);
 
   useEffect(() => {
-    if (jadwalPeriksaById) {
+    if (jadwalPeriksaById && idJadwal !== undefined) {
       setAddForm({
         id_dokter: id,
         hari: jadwalPeriksaById.hari,
         jam_mulai: jadwalPeriksaById.jam_mulai,
         jam_selesai: jadwalPeriksaById.jam_selesai,
         tanggal: jadwalPeriksaById.tanggal,
+        status_aktif: jadwalPeriksaById.status_aktif,
       });
     }
-  }, [id, jadwalPeriksaById]);
+  }, [id, jadwalPeriksaById, idJadwal]);
 
   return (
     <div className="container min-h-[90vh] m-5 my-[3rem] mx-auto">
@@ -127,6 +141,20 @@ const KelolaJadwalPeriksa = () => {
               onChange={(e) =>
                 setAddForm({ ...addForm, tanggal: e.target.value })
               }
+            />
+            <ReactSelect
+              title="Status"
+              value={{
+                value: addForm.status_aktif,
+                label: addForm.status_aktif === "Y" ? "Aktif" : "Tidak Aktif",
+              }}
+              onChange={(e) =>
+                setAddForm({ ...addForm, status_aktif: e.value })
+              }
+              data={[
+                { value: "Y", label: "Aktif" },
+                { value: "N", label: "Tidak Aktif" },
+              ]}
             />
             <div className="flex justify-end mt-4">
               <button

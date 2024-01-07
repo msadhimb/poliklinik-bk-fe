@@ -12,7 +12,7 @@ import { loginDokter } from "../../config/Redux/Action/dokterAction";
 import {
   loginPasien,
   registerPasien,
-} from "../../config/Redux/action/pasienAction";
+} from "../../config/Redux/Action/pasienAction";
 import { ToastContainer } from "react-toastify";
 import transition from "../../transition";
 

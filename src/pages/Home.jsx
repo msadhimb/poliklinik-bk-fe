@@ -162,7 +162,8 @@ const Home = () => {
           const time = new Date(`${date}T${item.jam_mulai}`);
           if (
             item.dokter.poli.nama_poli === selectedPoli &&
-            time >= currentDate
+            time >= currentDate &&
+            item.status_aktif === "Y"
           ) {
             return {
               value: item.id,
